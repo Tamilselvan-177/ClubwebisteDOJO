@@ -410,15 +410,22 @@ class InstanceService:
             challenge = instance.challenge
             
             # Check admin settings based on reason
-            if "expired" in reason.lower():
+            reason_lower = reason.lower()
+            if "expired" in reason_lower:
                 should_reduce = challenge.reduce_points_on_expiry
-            elif "stopped by user" in reason.lower():
+                logger.info(f"Checking expiry penalty for challenge {challenge.name}: reduce_points_on_expiry={challenge.reduce_points_on_expiry}")
+            elif "stopped by user" in reason_lower or "previous instance destroyed" in reason_lower or "user started new instance" in reason_lower:
+                # Manual stop or starting new instance (which destroys old instance)
                 should_reduce = challenge.reduce_points_on_stop
-            elif "wrong flag" in reason.lower():
+                logger.info(f"Checking stop penalty for challenge {challenge.name}: reduce_points_on_stop={challenge.reduce_points_on_stop}")
+            elif "wrong flag" in reason_lower or "destroyed due to wrong flag" in reason_lower:
                 should_reduce = challenge.reduce_points_on_wrong_flag
+                logger.info(f"Checking wrong flag penalty for challenge {challenge.name}: reduce_points_on_wrong_flag={challenge.reduce_points_on_wrong_flag}")
             else:
-                # For other reasons (event stopped, new instance, etc.), use default
-                should_reduce = True
+                # For other reasons (event stopped, admin actions, etc.), don't apply penalty by default
+                # Only apply if explicitly enabled - this prevents accidental penalties
+                should_reduce = False
+                logger.info(f"Unknown reason '{reason}' for challenge {challenge.name}; skipping penalty (should_reduce=False)")
         
         # Reduce points if admin settings allow (team-scoped penalty only)
         if should_reduce:
@@ -489,7 +496,12 @@ class InstanceService:
             )
             if success:
                 count += 1
-                logger.info(f"Expired instance {instance.instance_id} cleaned up. Points reduced: {points_reduced}")
+                if points_reduced > 0:
+                    logger.info(f"Expired instance {instance.instance_id} cleaned up. Points reduced: {points_reduced}")
+                elif not instance.challenge.reduce_points_on_expiry:
+                    logger.info(f"Expired instance {instance.instance_id} cleaned up. No penalty applied (expiry penalty disabled for challenge {instance.challenge.name})")
+                else:
+                    logger.info(f"Expired instance {instance.instance_id} cleaned up. No penalty applied (challenge already solved or scoreboard frozen)")
         
         return count
     

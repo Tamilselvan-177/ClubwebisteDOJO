@@ -344,7 +344,7 @@
     <script>
         async function loadStats() {
             try {
-                const response = await fetch('/dojo/api/accounts/auth/verification-stats/');
+                const response = await fetch('/dojo/api/auth/verification-stats/');
                 if (!response.ok) throw new Error('Failed to fetch stats');
                 
                 const data = await response.json();

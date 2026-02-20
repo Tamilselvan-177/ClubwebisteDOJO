@@ -219,6 +219,13 @@ class ChallengeInstanceViewSet(viewsets.ModelViewSet):
             response_data['warning'] = f'Previous instance(s) destroyed. Challenge points reduced by {points_reduced}.'
             response_data['destroyed_instances'] = destroyed_instances
             response_data['points_reduced'] = points_reduced
+        elif user_instances.exists():
+            # Check if any challenge has stop penalty enabled
+            any_penalty_enabled = any(inst.challenge.reduce_points_on_stop for inst in user_instances)
+            if not any_penalty_enabled:
+                response_data['info'] = 'Previous instance(s) destroyed. No penalty applied (stop penalty disabled for this challenge).'
+            else:
+                response_data['info'] = 'Previous instance(s) destroyed. No penalty applied (challenge already solved or scoreboard frozen).'
         
         return Response(response_data, status=status.HTTP_201_CREATED)
     
@@ -260,6 +267,12 @@ class ChallengeInstanceViewSet(viewsets.ModelViewSet):
         if points_reduced > 0:
             response_data['points_reduced'] = points_reduced
             response_data['warning'] = f'Challenge points reduced by {points_reduced} due to manual stop.'
+        elif instance.challenge.reduce_points_on_stop:
+            # Penalty setting is enabled but no penalty was applied (maybe already solved)
+            response_data['info'] = 'Instance stopped. No penalty applied (challenge already solved or scoreboard frozen).'
+        else:
+            # Penalty setting is disabled
+            response_data['info'] = 'Instance stopped. No penalty applied (stop penalty disabled for this challenge).'
         
         return Response(response_data)
     

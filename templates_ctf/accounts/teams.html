@@ -133,7 +133,7 @@
                                         <a href="/dojo/teams/{{ team.id }}/" class="block px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded transition text-center text-sm">
                                             View
                                         </a>
-                                        <form method="post" action="/api/teams/{{ team.id }}/request_join/" class="join-team-form">
+                                        <form method="post" action="/dojo/api/teams/{{ team.id }}/request_join/" class="join-team-form">
                                             {% csrf_token %}
                                             <input type="hidden" name="message" value=""/>
                                             <button type="submit" class="w-full px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded transition text-sm">

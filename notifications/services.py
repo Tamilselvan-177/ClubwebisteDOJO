@@ -311,7 +311,7 @@ class NotificationService:
                 priority='high',
                 event=challenge.event,
                 challenge=challenge,
-                action_url=f"/dashboard/challenges/{challenge.id}/",
+                action_url=f"/dojo/challenges/{challenge.id}/",
                 action_text="View Challenge",
                 extra_data=extra_data
             )
@@ -349,7 +349,7 @@ class NotificationService:
                 priority='normal',
                 event=challenge.event,
                 challenge=challenge,
-                action_url=f"/dashboard/challenges/{challenge.id}/",
+                action_url=f"/dojo/challenges/{challenge.id}/",
                 action_text="View Hint",
                 extra_data=extra_data
             )

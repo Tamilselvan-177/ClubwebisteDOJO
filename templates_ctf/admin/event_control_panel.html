@@ -160,7 +160,7 @@ function controlEvent(action) {
         const reason = prompt('Reason (optional, press Cancel to skip):') || '';
         
         // Send fetch request to API
-        fetch(`/api/admin/events/{{ event.id }}/${action}/`, {
+        fetch(`/dojo/api/admin/events/{{ event.id }}/${action}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

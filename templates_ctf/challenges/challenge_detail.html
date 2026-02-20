@@ -49,7 +49,8 @@
                         <span class="px-4 py-2 bg-yellow-500/20 border border-yellow-500/50 rounded-lg text-yellow-400 font-bold">
                             <div class="text-xs text-yellow-300">Base: {{ challenge.points }} pts</div>
                             <div class="text-lg">{{ effective_points }} pts</div>
-                            {% if team_penalty %}
+                            {% comment %}Only show penalty if there are actual penalties AND penalty settings are enabled{% endcomment %}
+                            {% if team_penalty and (challenge.reduce_points_on_wrong_flag or challenge.reduce_points_on_expiry or challenge.reduce_points_on_stop) %}
                                 <div class="text-xs text-red-400">Penalty: {{ team_penalty }} pts</div>
                             {% endif %}
                         </span>
@@ -341,8 +342,9 @@
                                         </div>
                                         {% if submission.status == 'correct' and submission.points_awarded %}
                                             <span class="text-xs text-green-400 font-semibold">+{{ submission.points_awarded }} pts</span>
-                                        {% elif submission.status == 'incorrect' %}
-                                            <span class="text-xs text-yellow-400">Penalty: -10%</span>
+                                        {% elif submission.status == 'incorrect' and submission.has_penalty and challenge.reduce_points_on_wrong_flag %}
+                                            {% comment %}Only show penalty if one was actually applied AND wrong flag penalty is enabled{% endcomment %}
+                                            <span class="text-xs text-yellow-400">Penalty applied</span>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -480,7 +482,7 @@
         const content = document.getElementById('solversContent');
         content.innerHTML = '<div class="text-gray-400">Loading...</div>';
         modal.classList.remove('hidden');
-        fetch(`/api/challenges/${challengeId}/solvers/`, { credentials: 'include' })
+        fetch(`/dojo/api/challenges/${challengeId}/solvers/`, { credentials: 'include' })
             .then(r => r.json())
             .then(data => {
                 if (!data || !Array.isArray(data.results) || data.results.length === 0) {
@@ -750,7 +752,7 @@ document.getElementById('flag-submit-form').addEventListener('submit', async (e)
             }
         } else if (data.status === 'incorrect') {
             messageDiv.className = 'p-3 rounded-lg bg-red-500/20 border border-red-500/50 text-red-400';
-            if (data.points_reduced) {
+            if (data.points_reduced && data.points_reduced > 0) {
                 messageDiv.innerHTML = `✗ Wrong flag! -${data.points_reduced} pts penalty applied (team-scoped)`;
                 // Reload to show updated penalty
                 setTimeout(() => window.location.reload(), 2000);
@@ -820,7 +822,7 @@ async function startInstance(challengeId) {
         const csrfToken = (document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken'));
         console.log('CSRF token:', csrfToken ? 'present' : 'missing');
 
-        const response = await fetch(`/api/challenges/${challengeId}/start_instance/`, {
+        const response = await fetch(`/dojo/api/challenges/${challengeId}/start_instance/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -901,7 +903,7 @@ async function renewInstance(challengeId, instanceId) {
         const csrfToken = (document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken'));
         console.log('CSRF token:', csrfToken ? 'present' : 'missing');
 
-        const response = await fetch(`/api/challenges/${challengeId}/renew_instance/`, {
+        const response = await fetch(`/dojo/api/challenges/${challengeId}/renew_instance/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1009,7 +1011,7 @@ async function stopInstance(challengeId, instanceId) {
         const csrfToken = (document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken'));
         console.log('CSRF token:', csrfToken ? 'present' : 'missing');
 
-        const response = await fetch(`/api/challenges/${challengeId}/stop_instance/`, {
+        const response = await fetch(`/dojo/api/challenges/${challengeId}/stop_instance/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1090,7 +1092,7 @@ async function unlockHint(hintId, cost) {
     if (!confirmed) return;
     
     try {
-        const response = await fetch(`/api/hints/${hintId}/unlock/`, {
+        const response = await fetch(`/dojo/api/hints/${hintId}/unlock/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1408,7 +1410,7 @@ async function autoStopExpiredInstance(challengeId, instanceId) {
         
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
         
-        const response = await fetch(`/api/challenges/${challengeId}/stop_instance/`, {
+        const response = await fetch(`/dojo/api/challenges/${challengeId}/stop_instance/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

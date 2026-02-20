@@ -210,6 +210,12 @@ class SubmissionService:
     
     def reduce_points_on_wrong_submission(self, team, challenge, event, submission):
         """Apply a per-team penalty for a wrong flag without removing earned points."""
+        # Check if wrong flag penalty is enabled for this challenge
+        # If reduce_points_on_wrong_flag is False, skip penalty
+        if not challenge.reduce_points_on_wrong_flag:
+            logger.info(f"Wrong flag penalty disabled for challenge {challenge.name}; skipping penalty for team {team.name}")
+            return 0
+        
         # Block penalties when scoreboard is frozen
         if getattr(event, 'is_scoreboard_frozen', False):
             logger.info(f"Scoreboard frozen; skipping penalty reduction for team {team.name} on {challenge.name}")
@@ -220,8 +226,13 @@ class SubmissionService:
         # Get current team total score (penalties don't change this)
         current_team_score = self.calculate_team_total_score(team, event)
 
-        # Fixed 10% penalty of base challenge points, minimum 1.
-        reduction = max(1, int(challenge.points * 0.10))
+        # Calculate penalty based on challenge configuration
+        if challenge.penalty_type == 'fixed':
+            # Fixed points penalty
+            reduction = challenge.penalty_fixed_points
+        else:
+            # Percentage penalty (default)
+            reduction = max(1, int(challenge.points * (challenge.penalty_percentage / 100.0)))
 
         # Record penalty as reduction entry (affects challenge score only, NOT team total score)
         # total_score stays the same because penalties don't reduce earned points

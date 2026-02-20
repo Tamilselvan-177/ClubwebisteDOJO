@@ -154,6 +154,12 @@ class SubmissionViewSet(viewsets.ModelViewSet):
                 )
                 if success:
                     print(f"[SECURITY] Instance cleaned up. Points reduced: {points_reduced}")
+                    if points_reduced == 0:
+                        challenge = exp_instance.challenge
+                        if not challenge.reduce_points_on_expiry:
+                            print(f"[INFO] No penalty applied - expiry penalty disabled for challenge {challenge.name}")
+                        else:
+                            print(f"[INFO] No penalty applied - challenge already solved or scoreboard frozen")
         
         # Check rate limit
         allowed, error_msg = self._check_rate_limit(team)
@@ -427,8 +433,17 @@ class SubmissionViewSet(viewsets.ModelViewSet):
                     )
                 
                 serializer = SubmissionSerializer(submission, context={'request': request})
+                
+                # Build appropriate message based on penalty status
+                if getattr(event, 'is_scoreboard_frozen', False):
+                    penalty_msg = ' Scoreboard is frozen; no penalties applied.'
+                elif reduction > 0:
+                    penalty_msg = f' Team-only penalty applied: -{reduction} pts.'
+                else:
+                    penalty_msg = ' No penalty applied (wrong flag penalty disabled for this challenge).'
+                
                 return Response({
-                    'message': 'Incorrect flag. Instance destroyed.' + (' Scoreboard is frozen; no penalties applied.' if getattr(event, 'is_scoreboard_frozen', False) else ' Team-only penalty applied.'),
+                    'message': 'Incorrect flag.' + (' Instance destroyed.' if instance else '') + penalty_msg,
                     'submission': serializer.data,
                     'points_reduced': reduction,
                     'status': 'incorrect'

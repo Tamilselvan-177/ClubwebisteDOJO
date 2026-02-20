@@ -478,6 +478,10 @@ class ChallengeViewSet(viewsets.ModelViewSet):
         if points_reduced > 0:
             response_data['points_reduced'] = points_reduced
             response_data['warning'] = f'Challenge points reduced by {points_reduced}.'
+        elif instance.challenge.reduce_points_on_stop:
+            response_data['info'] = 'Instance stopped. No penalty applied (challenge already solved or scoreboard frozen).'
+        else:
+            response_data['info'] = 'Instance stopped. No penalty applied (stop penalty disabled for this challenge).'
         
         return Response(response_data, status=status.HTTP_200_OK)
     
@@ -825,7 +829,12 @@ def challenge_detail_view(request, challenge_id):
                 )
                 if success:
                     print(f"[SECURITY] Instance cleaned up. Points reduced: {points_reduced}")
-                    messages.warning(request, f'⏱️ Your instance time expired. Team penalty applied: -{points_reduced} pts')
+                    if points_reduced > 0:
+                        messages.warning(request, f'⏱️ Your instance time expired. Team penalty applied: -{points_reduced} pts')
+                    elif challenge.reduce_points_on_expiry:
+                        messages.info(request, '⏱️ Your instance time expired. No penalty applied (challenge already solved or scoreboard frozen).')
+                    else:
+                        messages.info(request, '⏱️ Your instance time expired. No penalty applied (expiry penalty disabled for this challenge).')
                     active_instance = None  # Clear from context
                 else:
                     print(f"[ERROR] Failed to clean up expired instance: {error}")
@@ -861,10 +870,20 @@ def challenge_detail_view(request, challenge_id):
         renewal_limit = getattr(challenge, 'instance_renewal_limit', 0)
         renewals_available = max(0, renewal_limit - renewals_used)
     
-    # Get user submissions
+    # Get user submissions with penalty information
+    from submissions.models import Score
+    from django.db.models import Exists, OuterRef
+    
+    # Annotate submissions with whether they have a penalty
+    penalty_exists = Score.objects.filter(
+        submission=OuterRef('pk'),
+        score_type='reduction'
+    )
     user_submissions = Submission.objects.filter(
         user=request.user,
         challenge=challenge
+    ).annotate(
+        has_penalty=Exists(penalty_exists)
     ).order_by('-submitted_at')[:10]
     
     # Get challenge stats

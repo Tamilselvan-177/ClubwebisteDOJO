@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (response.ok) {
                 showToast('Login successful! Redirecting...', { type: 'success', duration: 3000 });
                 setTimeout(() => {
-                    window.location.href = '/dashboard/';
+                    window.location.href = '/dojo/dashboard/';
                 }, 1500);
             } else {
                 // Show specific error message

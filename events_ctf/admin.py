@@ -192,16 +192,16 @@ class EventAdmin(admin.ModelAdmin):
         buttons = []
         
         if obj.contest_state == 'not_started':
-            start_url = reverse('admin:events_event_start', args=[obj.id])
+            start_url = reverse('admin:events_ctf_event_start', args=[obj.id])
             buttons.append(f'<a href="{start_url}" class="button" style="background-color:#417690;">▶️ Start</a>')
         elif obj.contest_state in ['running', 'resumed']:
-            pause_url = reverse('admin:events_event_pause', args=[obj.id])
-            stop_url = reverse('admin:events_event_stop', args=[obj.id])
+            pause_url = reverse('admin:events_ctf_event_pause', args=[obj.id])
+            stop_url = reverse('admin:events_ctf_event_stop', args=[obj.id])
             buttons.append(f'<a href="{pause_url}" class="button" style="background-color:#f8b737;">⏸️ Pause</a>')
             buttons.append(f'<a href="{stop_url}" class="button" style="background-color:#ba2121;">🛑 Stop</a>')
         elif obj.contest_state == 'paused':
-            resume_url = reverse('admin:events_event_resume', args=[obj.id])
-            stop_url = reverse('admin:events_event_stop', args=[obj.id])
+            resume_url = reverse('admin:events_ctf_event_resume', args=[obj.id])
+            stop_url = reverse('admin:events_ctf_event_stop', args=[obj.id])
             buttons.append(f'<a href="{resume_url}" class="button" style="background-color:#417690;">▶️ Resume</a>')
             buttons.append(f'<a href="{stop_url}" class="button" style="background-color:#ba2121;">🛑 Stop</a>')
         
@@ -220,16 +220,16 @@ class EventAdmin(admin.ModelAdmin):
         buttons.append(f'<a href="{scoreboard_url}" class="button" style="background-color:#4a5568; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; display: inline-block; margin: 5px 0;">📊 View Scoreboard</a>')
         
         if obj.contest_state == 'not_started':
-            start_url = reverse('admin:events_event_start', args=[obj.id])
+            start_url = reverse('admin:events_ctf_event_start', args=[obj.id])
             buttons.append(f'<a href="{start_url}" class="button" style="background-color:#417690;">▶️ Start Event</a>')
         elif obj.contest_state in ['running', 'resumed']:
-            pause_url = reverse('admin:events_event_pause', args=[obj.id])
-            stop_url = reverse('admin:events_event_stop', args=[obj.id])
+            pause_url = reverse('admin:events_ctf_event_pause', args=[obj.id])
+            stop_url = reverse('admin:events_ctf_event_stop', args=[obj.id])
             buttons.append(f'<a href="{pause_url}" class="button" style="background-color:#f8b737;">⏸️ Pause Event</a>')
             buttons.append(f'<a href="{stop_url}" class="button" style="background-color:#ba2121;">🛑 Stop Event</a>')
         elif obj.contest_state == 'paused':
-            resume_url = reverse('admin:events_event_resume', args=[obj.id])
-            stop_url = reverse('admin:events_event_stop', args=[obj.id])
+            resume_url = reverse('admin:events_ctf_event_resume', args=[obj.id])
+            stop_url = reverse('admin:events_ctf_event_stop', args=[obj.id])
             buttons.append(f'<a href="{resume_url}" class="button" style="background-color:#417690;">▶️ Resume Event</a>')
             buttons.append(f'<a href="{stop_url}" class="button" style="background-color:#ba2121;">🛑 Stop Event</a>')
         
@@ -241,10 +241,10 @@ class EventAdmin(admin.ModelAdmin):
         from django.urls import path
         urls = super().get_urls()
         custom_urls = [
-            path('<int:event_id>/start/', self.admin_site.admin_view(self.start_event_view), name='events_event_start'),
-            path('<int:event_id>/pause/', self.admin_site.admin_view(self.pause_event_view), name='events_event_pause'),
-            path('<int:event_id>/resume/', self.admin_site.admin_view(self.resume_event_view), name='events_event_resume'),
-            path('<int:event_id>/stop/', self.admin_site.admin_view(self.stop_event_view), name='events_event_stop'),
+            path('<int:event_id>/start/', self.admin_site.admin_view(self.start_event_view), name='events_ctf_event_start'),
+            path('<int:event_id>/pause/', self.admin_site.admin_view(self.pause_event_view), name='events_ctf_event_pause'),
+            path('<int:event_id>/resume/', self.admin_site.admin_view(self.resume_event_view), name='events_ctf_event_resume'),
+            path('<int:event_id>/stop/', self.admin_site.admin_view(self.stop_event_view), name='events_ctf_event_stop'),
         ]
         return custom_urls + urls
     
@@ -257,7 +257,7 @@ class EventAdmin(admin.ModelAdmin):
         except ValueError as e:
             self.message_user(request, f'Error: {str(e)}', level='ERROR')
         from django.shortcuts import redirect
-        return redirect('admin:events_event_change', event_id)
+        return redirect('admin:events_ctf_event_change', event_id)
     
     def pause_event_view(self, request, event_id):
         """View to pause event"""
@@ -268,7 +268,7 @@ class EventAdmin(admin.ModelAdmin):
         except ValueError as e:
             self.message_user(request, f'Error: {str(e)}', level='ERROR')
         from django.shortcuts import redirect
-        return redirect('admin:events_event_change', event_id)
+        return redirect('admin:events_ctf_event_change', event_id)
     
     def resume_event_view(self, request, event_id):
         """View to resume event"""
@@ -279,7 +279,7 @@ class EventAdmin(admin.ModelAdmin):
         except ValueError as e:
             self.message_user(request, f'Error: {str(e)}', level='ERROR')
         from django.shortcuts import redirect
-        return redirect('admin:events_event_change', event_id)
+        return redirect('admin:events_ctf_event_change', event_id)
     
     def stop_event_view(self, request, event_id):
         """View to stop event"""
@@ -290,7 +290,7 @@ class EventAdmin(admin.ModelAdmin):
         except Exception as e:
             self.message_user(request, f'Error: {str(e)}', level='ERROR')
         from django.shortcuts import redirect
-        return redirect('admin:events_event_change', event_id)
+        return redirect('admin:events_ctf_event_change', event_id)
     
     def start_events(self, request, queryset):
         """Admin action to start events"""
