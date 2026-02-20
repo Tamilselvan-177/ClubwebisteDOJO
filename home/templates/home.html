@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>WHERE HACKERS UNITE</h1>
+                <p>Community of ethical hackers, security researchers, and cyber enthusiasts.</p>
+                <button class="btn-join" onclick="window.location.href='{% url 'home:aboutus' %}'">ABOUT US <i data-lucide="ChevronsRight" style="width: 16px"></i></button>
+            </div>
+            <div class="hero-graphic">
+                <div class="server-box">
+                    <img src="{% static 'images/CyanLogo.png' %}" style="width: 100px; height: 100px; color: var(--accent-cyan); opacity: 0.6;"/>
+                </div>
+            </div>
+        </section>
+
+        <h2 class="section-title">Recent Events</h2>
+<div class="carousel-container">
+  <div class="carousel-track">
+
+    {% for event in events %}
+    <div class="carousel-card">
+
+        <img class="event-img" src="{% if event.cover_image %}{{ event.cover_image.url }}{% else %}{% static 'images/CyanLogo.png' %}{% endif %}" alt="{{ event.title }}">
+
+        <div class="carousel-card-body">
+            <i data-lucide="Flag"></i>
+
+            <h3>{{ event.title }}</h3>
+
+            <span class="date">
+              <i data-lucide="calendar" style="width: 18px;"></i>
+              <p>{{ event.date }}</p>
+            </span>
+
+            <p>{{ event.desc|truncatewords:20 }}</p>
+
+            <button class="btn-card"
+              onclick="window.location.href='{% url 'Events:gallery' event.slug %}'">
+              More Info
+              <i data-lucide="ChevronsRight" style="width: 16px"></i>
+            </button>
+        </div>
+
+    </div>
+    {% endfor %}
+
+  </div>
+
+</div>
+
+        <h2 class="section-title">BLOGS</h2>
+        <div class="carousel-container">
+  <div class="carousel-track">
+
+    {% for b in blog %}
+    <div class="carousel-card">
+        <img class="event-img" src="{% if b.cover_image %}{{ b.cover_image.url }}{% else %}{% static 'images/CyanLogo.png' %}{% endif %}" alt="{{ event.title }}">
+        <div class="carousel-card-body">
+            <i data-lucide="book"></i>
+
+            <h3>{{ b.title }}</h3>
+
+            <span class="date">
+              <i data-lucide="calendar" style="width: 18px;"></i>
+              <p>{{ b.date }}</p>
+            </span>
+
+            <p>{{ b.desc|truncatewords:20 }}</p>
+
+            <button class="btn-card"
+              onclick="window.location.href='{% url 'Blogs:blog' b.slug %}'">
+              More Info
+              <i data-lucide="ChevronsRight" style="width: 16px"></i>
+            </button>
+        </div>
+
+    </div>
+    {% endfor %}
+
+  </div>
+
+</div>
+    </main>
+{% endblock %}

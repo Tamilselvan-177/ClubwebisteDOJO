@@ -1,0 +1,1529 @@
+{% extends 'ctf_base.html' %}
+{% load static %}
+
+{% block title %}{{ challenge.name }} - Challenges - CYBER SENTINELS CTF{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-black via-red-950 to-black">
+    <!-- Header -->
+    <div class="bg-black/80 border-b border-red-500/30 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <a href="/dojo/challenges/" class="text-gray-400 hover:text-primary transition">
+                        ← Back
+                    </a>
+                    <div>
+                        <h1 class="text-3xl font-bold font-jetbrains text-white">{{ challenge.name }}</h1>
+                        <div class="flex items-center gap-3 mt-1">
+                            <p class="text-gray-400 text-sm">{{ challenge.category.name }}</p>
+                            {% if challenge.author %}
+                            <span class="text-gray-600 text-xs">•</span>
+                            <p class="text-gray-500 text-xs flex items-center gap-1">
+                                <span>✍️</span>
+                                <span>by {{ challenge.author.username }}</span>
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% if is_solved %}
+                    <span class="px-6 py-2 bg-green-500/20 border border-green-500/50 rounded-lg text-green-400 font-semibold">
+                        ✓ Solved
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Challenge Info Card -->
+                <div class="bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-primary/30 rounded-none p-8">
+                    <div class="flex items-center gap-4 mb-6">
+                        <span class="px-4 py-2 bg-{{ challenge.category.color|default:'red' }}-500/20 border border-{{ challenge.category.color|default:'red' }}-500/50 rounded-lg text-{{ challenge.category.color|default:'red' }}-400 font-semibold">
+                            {{ challenge.category.name }}
+                        </span>
+                        <span class="px-4 py-2 bg-yellow-500/20 border border-yellow-500/50 rounded-lg text-yellow-400 font-bold">
+                            <div class="text-xs text-yellow-300">Base: {{ challenge.points }} pts</div>
+                            <div class="text-lg">{{ effective_points }} pts</div>
+                            {% if team_penalty %}
+                                <div class="text-xs text-red-400">Penalty: {{ team_penalty }} pts</div>
+                            {% endif %}
+                        </span>
+                        <!-- Difficulty Badge -->
+                        {% if challenge.difficulty %}
+                        <span class="px-4 py-2 rounded-lg font-semibold {% if challenge.difficulty == 'easy' %}bg-green-500/20 border border-green-500/50 text-green-400{% elif challenge.difficulty == 'medium' %}bg-yellow-500/20 border border-yellow-500/50 text-yellow-400{% elif challenge.difficulty == 'hard' %}bg-orange-500/20 border border-orange-500/50 text-orange-400{% elif challenge.difficulty == 'expert' %}bg-red-500/20 border border-red-500/50 text-red-400{% endif %}">
+                            {% if challenge.difficulty == 'easy' %}🟢 Easy
+                            {% elif challenge.difficulty == 'medium' %}🟡 Medium
+                            {% elif challenge.difficulty == 'hard' %}🟠 Hard
+                            {% elif challenge.difficulty == 'expert' %}🔴 Expert
+                            {% endif %}
+                        </span>
+                        {% endif %}
+                        <!-- Live Team Score -->
+                        <!-- <div id="live-score-display" class="ml-auto px-4 py-2 bg-green-500/20 border-2 border-green-500/50 rounded-lg">
+                            <div class="text-xs text-green-400 font-semibold">Your Team Score</div>
+                            <div id="team-score-value" class="text-xl font-bold text-green-400">{{ team_score|default:'0' }}</div>
+                        </div> -->
+                    </div>
+
+                    <div class="prose prose-invert max-w-none">
+                        <h3 class="text-xl font-semibold font-jetbrains text-primary mb-4">📝 Description</h3>
+                        <div class="text-gray-300 whitespace-pre-wrap">{{ challenge.description }}</div>
+                    </div>
+
+                    {% if challenge.hints.exists %}
+                        <div class="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                            <h4 class="text-sm font-semibold font-jetbrains text-yellow-400 mb-2">💡 Hints</h4>
+                            <div class="space-y-2">
+                                {% for hint in challenge.hints.all %}
+                                    <div class="p-3 bg-yellow-500/5 border border-yellow-500/20 rounded">
+                                        {% if hint.id in unlocked_hint_ids %}
+                                            <!-- Unlocked hint - show text -->
+                                            <p class="text-gray-300 text-sm">{{ hint.text }}</p>
+                                            <span class="text-xs text-green-500">✓ Unlocked</span>
+                                        {% else %}
+                                            <!-- Locked hint - show unlock button or disabled state -->
+                                            <div class="flex items-center justify-between">
+                                                <p class="text-gray-500 text-sm">🔒 Hint #{{ forloop.counter }} (Click to unlock)</p>
+                                                {% if is_solved %}
+                                                    <button 
+                                                        disabled
+                                                        class="px-4 py-2 bg-gray-600 text-gray-400 font-semibold rounded cursor-not-allowed opacity-50"
+                                                        title="Cannot unlock hints after solving challenge">
+                                                        Unlocking Disabled
+                                                    </button>
+                                                {% else %}
+                                                    <button 
+                                                        onclick="unlockHint({{ hint.id }}, {{ hint.cost }})"
+                                                        class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded transition">
+                                                        Unlock for {{ hint.cost }} points
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if challenge.files %}
+                        <div class="mt-6">
+                            <h4 class="text-sm font-semibold font-jetbrains text-primary mb-3">📎 Files</h4>
+                            <div class="space-y-2">
+                                {% for file in challenge.files.all %}
+                                    <a href="{{ file.file.url }}" class="flex items-center gap-3 p-3 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-primary/50 transition">
+                                        <span class="text-2xl">📄</span>
+                                        <div class="flex-1">
+                                            <div class="text-white font-semibold">{{ file.filename }}</div>
+                                            <div class="text-xs text-gray-500">{{ file.filesize }}</div>
+                                        </div>
+                                        <span class="text-primary">Download →</span>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Instance Management (ONLY for instance-based challenges) -->
+                {% if challenge.challenge_type == 'instance' %}
+                    <div class="bg-gradient-to-br from-purple-900/30 to-pink-900/30 border border-purple-500/30 rounded-none p-6">
+                        <h3 class="text-xl font-semibold font-jetbrains text-purple-400 mb-4">🔌 Instance Management</h3>
+                        
+                        {% if active_instance %}
+                            <div class="bg-black/40 border border-purple-500/50 rounded-lg p-6 mb-4">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div>
+                                        <div class="text-sm text-gray-400 mb-1">Instance Status</div>
+                                        <div class="text-2xl font-bold text-green-400">🟢 Running</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm text-gray-400 mb-1">Time Remaining</div>
+                                        <div class="text-2xl font-bold font-mono" id="instance-timer" data-expiry="{{ active_instance.expires_at|date:'c' }}" data-total-seconds="{{ initial_total_seconds }}" style="color: #4ade80;">{{ time_remaining }}</div>
+                                    </div>
+                                </div>
+
+                                <!-- Renewals Display -->
+                                {% if renewals_available is not None %}
+                                <div class="mb-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                                    <div class="flex items-center justify-between">
+                                        <div class="text-sm text-blue-400 font-semibold">🔄 Renewals</div>
+                                        <div class="text-sm font-mono {% if renewals_available > 0 %}text-blue-400{% else %}text-red-400{% endif %}">
+                                            {% if renewal_limit == 0 %}
+                                                {{ renewals_used }} used (unlimited)
+                                            {% else %}
+                                                {{ renewals_available }}/{{ renewal_limit }} available
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% if renewals_available == 0 %}
+                                    <div class="text-xs text-red-400 mt-2">⚠️ Maximum renewals reached</div>
+                                    {% elif renewals_available <= 1 %}
+                                    <div class="text-xs text-yellow-400 mt-2">⚡ Limited renewals remaining</div>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+
+                                <!-- Progress Bar with Color Transitions -->
+                                <div class="mb-4">
+                                    <div class="w-full bg-gray-900 rounded-full h-4 overflow-hidden border border-gray-700 shadow-lg">
+                                        <div id="instance-progress" class="h-full bg-gradient-to-r from-green-500 to-green-400 transition-all duration-300" style="width: 100%"></div>
+                                    </div>
+                                    <div class="flex justify-between text-xs text-gray-500 mt-2">
+                                        <span>🟢 Healthy</span>
+                                        <span>🟡 Medium</span>
+                                        <span>🔴 Low</span>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-3 mb-4">
+                                    <div>
+                                        <div class="text-xs text-gray-500 mb-1">Connection Info</div>
+                                        
+                                        <!-- Web URL Type -->
+                                        {% if challenge.instance_url_type == 'web_url' %}
+                                            <!-- Primary connection (accessible from host) -->
+                                            <div class="mb-3">
+                                                <div class="text-xs text-gray-400 mb-1">🌐 Access from your machine:</div>
+                                                <div class="flex items-center gap-2">
+                                                    <code class="flex-1 px-4 py-2 bg-gray-900 border border-cyan-700 rounded text-cyan-400 font-mono text-sm">
+                                                        http://{{ request.get_host|cut:':8000' }}:{{ active_instance.access_port }}
+                                                    </code>
+                                                    <button onclick="copyToClipboard('http://{{ request.get_host|cut:':8000' }}:{{ active_instance.access_port }}')" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition">
+                                                        Copy
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Container IP (for same network access) -->
+                                            {% if active_instance.container_ip %}
+                                            <div>
+                                                <div class="text-xs text-gray-400 mb-1">🐳 Direct container IP (same network):</div>
+                                                <div class="flex items-center gap-2">
+                                                    <code class="flex-1 px-4 py-2 bg-gray-900 border border-emerald-700 rounded text-emerald-400 font-mono text-sm">
+                                                        http://{{ active_instance.container_ip }}:{{ active_instance.access_port }}
+                                                    </code>
+                                                    <button onclick="copyToClipboard('http://{{ active_instance.container_ip }}:{{ active_instance.access_port }}')" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition">
+                                                        Copy
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        
+                                        <!-- Netcat Type -->
+                                        {% elif challenge.instance_url_type == 'netcat' %}
+                                            <!-- Netcat connection using host port mapping -->
+                                            <div class="mb-3">
+                                                <div class="text-xs text-gray-400 mb-1">🔌 Netcat from your machine:</div>
+                                                <div class="flex items-center gap-2">
+                                                    <code class="flex-1 px-4 py-2 bg-gray-900 border border-orange-700 rounded text-orange-400 font-mono text-sm">
+                                                        nc {{ request.get_host|cut:':8000' }} {{ active_instance.access_port }}
+                                                    </code>
+                                                    <button onclick="copyToClipboard('nc {{ request.get_host|cut:':8000' }} {{ active_instance.access_port }}')" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition">
+                                                        Copy
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Direct container IP netcat (for same network) -->
+                                            {% if active_instance.container_ip %}
+                                            <div>
+                                                <div class="text-xs text-gray-400 mb-1">🐳 Netcat via container IP (same network):</div>
+                                                <div class="flex items-center gap-2">
+                                                    <code class="flex-1 px-4 py-2 bg-gray-900 border border-pink-700 rounded text-pink-400 font-mono text-sm">
+                                                        nc {{ active_instance.container_ip }} {{ active_instance.access_port }}
+                                                    </code>
+                                                    <button onclick="copyToClipboard('nc {{ active_instance.container_ip }} {{ active_instance.access_port }}')" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition">
+                                                        Copy
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-2 text-xs text-gray-400 mb-4 p-3 bg-gray-900/50 border border-gray-700 rounded">
+                                    <p><strong>💡 Connection Guide:</strong></p>
+                                    {% if challenge.instance_url_type == 'web_url' %}
+                                        <p>• <span class="text-cyan-400">First URL</span>: Use this from your machine (port mapped to host)</p>
+                                        {% if active_instance.container_ip %}
+                                        <p>• <span class="text-emerald-400">Second URL</span>: Use only if accessing from same Docker network</p>
+                                        {% endif %}
+                                    {% elif challenge.instance_url_type == 'netcat' %}
+                                        <p>• <span class="text-orange-400">First command</span>: Use this from your machine (port mapped to host)</p>
+                                        {% if active_instance.container_ip %}
+                                        <p>• <span class="text-pink-400">Second command</span>: Use only if accessing from same Docker network</p>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+
+                                <div class="space-y-2">
+                                    {% if challenge.allow_instance_renewal %}
+                                        {% if total_seconds is not None and renewal_threshold_seconds is not None and total_seconds <= renewal_threshold_seconds %}
+                                            <button id="renew-btn" onclick="renewInstance('{{ challenge.id }}', '{{ active_instance.id }}')" class="w-full px-4 py-2 bg-blue-600/20 border border-blue-500/50 text-blue-400 rounded-none hover:bg-blue-600/30 transition font-semibold">
+                                                <span class="btn-text">🔄 Renew Instance (+{{ challenge.instance_renewal_minutes }} min)</span>
+                                                <span class="btn-loading hidden">
+                                                    <svg class="animate-spin inline h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    Renewing...
+                                                </span>
+                                            </button>
+                                        {% else %}
+                                            <div class="w-full px-4 py-3 bg-green-700/20 border border-green-600/50 text-green-400 rounded-lg text-sm text-center">
+                                                ✓ Instance time is healthy ({{ display_minutes_remaining }} min)
+                                            </div>
+                                        {% endif %}
+                                    {% else %}
+                                        <div class="w-full px-4 py-3 bg-gray-700/20 border border-gray-600/50 text-gray-400 rounded-lg text-sm text-center">
+                                            ℹ️ Instance renewal not available for this challenge
+                                        </div>
+                                    {% endif %}
+                                    <button id="stop-btn" onclick="stopInstance('{{ challenge.id }}', '{{ active_instance.id }}')" class="w-full px-4 py-2 bg-red-600/20 border border-red-500/50 text-red-400 rounded-lg hover:bg-red-600/30 transition font-semibold">
+                                        <span class="btn-text">Stop Instance</span>
+                                        <span class="btn-loading hidden">
+                                            <svg class="animate-spin inline h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Stopping...
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                        {% else %}
+                            {% if is_solved %}
+                                <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mb-4">
+                                    <p class="text-green-400 font-semibold">✓ Challenge Already Completed</p>
+                                    <p class="text-gray-400 text-sm mt-1">You have already solved this challenge. Instance creation is disabled.</p>
+                                </div>
+                                <button disabled class="w-full px-6 py-3 bg-gray-600 text-gray-400 rounded-lg cursor-not-allowed font-semibold opacity-50">
+                                    🔒 Instance Disabled (Solved)
+                                </button>
+                            {% else %}
+                                <p class="text-gray-400 mb-4">Start an instance to get your personalized environment</p>
+                                <button id="start-btn" onclick="startInstance('{{ challenge.id }}')" class="w-full px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition font-semibold shadow-lg shadow-purple-500/50">
+                                    <span class="btn-text">🚀 Start Instance</span>
+                                    <span class="btn-loading hidden">
+                                        <svg class="animate-spin inline h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Starting Instance...
+                                    </span>
+                                </button>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <!-- Submission History -->
+                {% if user_submissions %}
+                    <div class="bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-red-500/30 rounded-none p-6">
+                        <h3 class="text-xl font-semibold font-jetbrains text-red-400 mb-4">📊 Your Submissions</h3>
+                        <div class="space-y-2 max-h-64 overflow-y-auto">
+                            {% for submission in user_submissions %}
+                                <div class="flex items-center justify-between p-3 rounded {% if submission.status == 'correct' %}bg-green-500/10 border-l-4 border-green-500{% elif submission.status == 'incorrect' %}bg-red-500/10 border-l-4 border-red-500{% else %}bg-gray-800/50{% endif %}">
+                                    <div class="flex-1">
+                                        <code class="text-sm text-gray-400 font-mono">{{ submission.flag|truncatechars:50 }}</code>
+                                        <div class="text-xs text-gray-600 mt-1">{{ submission.submitted_at|timesince }} ago</div>
+                                    </div>
+                                    <div class="flex flex-col items-end gap-1">
+                                        <div class="{% if submission.status == 'correct' %}text-green-400{% elif submission.status == 'incorrect' %}text-red-400{% else %}text-gray-400{% endif %} font-semibold">
+                                            {% if submission.status == 'correct' %}✓ Correct{% elif submission.status == 'incorrect' %}✗ Wrong{% else %}{{ submission.get_status_display }}{% endif %}
+                                        </div>
+                                        {% if submission.status == 'correct' and submission.points_awarded %}
+                                            <span class="text-xs text-green-400 font-semibold">+{{ submission.points_awarded }} pts</span>
+                                        {% elif submission.status == 'incorrect' %}
+                                            <span class="text-xs text-yellow-400">Penalty: -10%</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Event Paused Warning -->
+                {% if current_event.contest_state == 'paused' %}
+                <div class="bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border-2 border-yellow-500/50 rounded-lg p-6">
+                    <div class="flex items-start gap-3">
+                        <div class="text-3xl">⏸️</div>
+                        <div>
+                            <h4 class="font-bold text-yellow-400 mb-1">Event Paused</h4>
+                            <p class="text-sm text-yellow-200">Submissions are disabled during the pause.</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Flag Submission -->
+<div class="bg-gradient-to-br from-red-900/30 to-orange-900/30 
+            border border-red-500/30 rounded-none p-6">
+                    <h3 class="text-xl font-semibold font-jetbrains text-red-400 mb-4">🚩 Submit Flag</h3>
+                    
+                    <form method="post" id="flag-submit-form" class="space-y-4">
+                        {% csrf_token %}
+                        <div>
+                            <input 
+                                type="text" 
+                                name="flag" 
+                                placeholder="0xTi{...}" 
+                                required
+                                class="w-full px-4 py-3 bg-black/40 border border-red-500/30 rounded-lg text-white placeholder-gray-500 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 transition font-mono"
+                            />
+                        </div>
+
+                        <div id="submission-message" class="hidden p-3 rounded-lg"></div>
+
+                        <button 
+                            type="submit"
+                            id="flag-submit-btn"
+                            class="w-full px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-semibold shadow-lg shadow-red-500/50 flex items-center justify-center gap-2"
+                        >
+                            <span class="submit-text">Submit Flag</span>
+                            <span class="submit-loading hidden animate-spin h-4 w-4 border-2 border-white/70 border-t-transparent rounded-full"></span>
+                        </button>
+                    </form>
+
+                    <div class="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                        <p class="text-xs text-blue-400">
+                            💡 Flags usually follow the format: <code class="text-cyan-400">0xTi{...}</code>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Challenge Stats -->
+                <div class="bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-gray-700 rounded-none p-6">
+                    <h3 class="text-lg font-semibold font-jetbrains text-gray-300 mb-4">📈 Statistics</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center gap-3">
+                            <span class="text-gray-400">Solves</span>
+                            <div class="flex items-center gap-3">
+                                <span class="text-white font-semibold">{{ challenge.solves }}</span>
+                                <button onclick="openSolversModal({{ challenge.id }})" class="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-white rounded border border-gray-600">View all</button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Attempts</span>
+                            <span class="text-white font-semibold">{{ total_attempts }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Success Rate</span>
+                            <span class="text-white font-semibold">{{ success_rate }}%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- First Blood -->
+                {% if first_blood %}
+                    <div class="bg-gradient-to-br from-yellow-900/30 to-orange-900/30 border border-yellow-500/30 rounded-none p-6">
+                        <h3 class="text-lg font-semibold font-jetbrains text-yellow-400 mb-3">🩸 First Blood</h3>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full flex items-center justify-center text-lg font-bold text-white">
+                                {{ first_blood.user.username|slice:":1"|upper }}
+                            </div>
+                            <div>
+                                <div class="text-white font-semibold">{{ first_blood.user.username }}</div>
+                                <div class="text-xs text-gray-400">{{ first_blood.team.name }}</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+    <div class="bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-red-500/50 rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl shadow-red-500/20">
+        <h3 id="modalTitle" class="text-2xl font-bold text-red-400 mb-3">Confirm Action</h3>
+        <p id="modalMessage" class="text-gray-300 mb-8 text-lg leading-relaxed"></p>
+        <p id="modalWarning" class="text-yellow-400 text-sm mb-6 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded hidden"></p>
+        <div class="flex gap-4">
+            <button id="confirmCancel" class="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-semibold">
+                Cancel
+            </button>
+            <button id="confirmOk" class="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-semibold">
+                Confirm
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Solvers Modal -->
+<div id="solversModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[60]">
+    <div class="bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-red-500/50 rounded-lg p-6 max-w-2xl w-full mx-4 shadow-2xl shadow-red-500/20">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-red-400">Challenge Solvers</h3>
+            <button onclick="closeSolversModal()" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded">Close</button>
+        </div>
+        <div id="solversContent" class="max-h-[60vh] overflow-auto">
+            <div class="text-gray-400">Loading...</div>
+        </div>
+    </div>
+    
+    <script>
+    function openSolversModal(challengeId) {
+        const modal = document.getElementById('solversModal');
+        const content = document.getElementById('solversContent');
+        content.innerHTML = '<div class="text-gray-400">Loading...</div>';
+        modal.classList.remove('hidden');
+        fetch(`/api/challenges/${challengeId}/solvers/`, { credentials: 'include' })
+            .then(r => r.json())
+            .then(data => {
+                if (!data || !Array.isArray(data.results) || data.results.length === 0) {
+                    content.innerHTML = '<div class="text-gray-400">No solves yet.</div>';
+                    return;
+                }
+                const rows = data.results.map(e => `
+                    <tr class="border-b border-gray-700/60">
+                        <td class="px-3 py-2 text-gray-300">#${e.rank}</td>
+                        <td class="px-3 py-2 text-white font-semibold">${e.team_name}</td>
+                        <td class="px-3 py-2 text-gray-300">${e.username}</td>
+                        <td class="px-3 py-2 text-gray-400 text-sm">${new Date(e.submitted_at).toLocaleString()}</td>
+                        <td class="px-3 py-2 text-green-400">+${e.points}</td>
+                    </tr>
+                `).join('');
+                content.innerHTML = `
+                    <div class="mb-3 text-gray-400">Total teams solved: <span class="text-white">${data.count}</span></div>
+                    <div class="overflow-auto rounded border border-gray-700/60">
+                        <table class="min-w-full text-left text-sm">
+                            <thead class="bg-gray-800/60 text-gray-400">
+                                <tr>
+                                    <th class="px-3 py-2">Rank</th>
+                                    <th class="px-3 py-2">Team</th>
+                                    <th class="px-3 py-2">User</th>
+                                    <th class="px-3 py-2">Time</th>
+                                    <th class="px-3 py-2">Points</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows}
+                            </tbody>
+                        </table>
+                    </div>`;
+            })
+            .catch(() => {
+                content.innerHTML = '<div class="text-red-400">Failed to load solvers.</div>';
+            });
+    }
+    function closeSolversModal() {
+        const modal = document.getElementById('solversModal');
+        modal.classList.add('hidden');
+    }
+    </script>
+</div>
+
+<!-- Stopping Instance Overlay -->
+<div id="stoppingOverlay" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-[100]">
+    <div class="bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-red-500/50 rounded-lg p-10 max-w-md w-full mx-4 shadow-2xl shadow-red-500/30 text-center">
+        <div class="mb-6">
+            <div class="inline-block animate-spin rounded-full h-16 w-16 border-4 border-red-500 border-t-transparent"></div>
+        </div>
+        <h3 class="text-2xl font-bold text-red-400 mb-3">Stopping Instance</h3>
+        <p class="text-gray-300 mb-2">Please wait while we clean up your instance...</p>
+        <p class="text-gray-500 text-sm">This may take 10-15 seconds</p>
+        <p class="text-yellow-400 text-xs mt-4 p-2 bg-yellow-500/10 border border-yellow-500/30 rounded">
+            ⚠️ Do not refresh or close this page
+        </p>
+    </div>
+</div>
+
+<script>
+// Stopping overlay functions
+function showStoppingOverlay() {
+    const overlay = document.getElementById('stoppingOverlay');
+    if (overlay) {
+        overlay.classList.remove('hidden');
+        // Prevent page unload during stopping
+        window.onbeforeunload = function() {
+            return "Instance is being stopped. Please wait...";
+        };
+    }
+}
+
+function hideStoppingOverlay() {
+    const overlay = document.getElementById('stoppingOverlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+        window.onbeforeunload = null;
+    }
+}
+
+// Modal confirmation system
+let modalCallback = null;
+let modalResolver = null;
+const modal = document.getElementById('confirmModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalMessage = document.getElementById('modalMessage');
+const modalWarning = document.getElementById('modalWarning');
+const confirmCancel = document.getElementById('confirmCancel');
+const confirmOk = document.getElementById('confirmOk');
+
+function showConfirm(titleOrOptions, message = null, warning = null, callback = null) {
+    // Support both old (4 params) and new (1 object param) signatures
+    let options = {};
+    
+    if (typeof titleOrOptions === 'object') {
+        // New object-based signature
+        options = titleOrOptions;
+    } else {
+        // Old string-based signature (for backwards compatibility)
+        options = {
+            title: titleOrOptions,
+            message: message,
+            warning: warning,
+            callback: callback
+        };
+    }
+    
+    console.log('showConfirm called with options:', options);
+    
+    // Set modal content
+    modalTitle.textContent = options.title || 'Confirm';
+    modalMessage.textContent = options.message || 'Are you sure?';
+    
+    // Set warning if provided
+    if (options.warning) {
+        modalWarning.textContent = options.warning;
+        modalWarning.classList.remove('hidden');
+    } else {
+        modalWarning.classList.add('hidden');
+    }
+    
+    // Update button text
+    confirmOk.textContent = options.confirmText || 'Confirm';
+    confirmCancel.textContent = options.cancelText || 'Cancel';
+    
+    // Return a promise for async/await usage
+    return new Promise((resolve) => {
+        modalResolver = resolve;
+        
+        // Also support old callback style
+        if (options.callback) {
+            modalCallback = options.callback;
+        } else {
+            modalCallback = null;
+        }
+        
+        modal.classList.remove('hidden');
+    });
+}
+
+function hideConfirm() {
+    modal.classList.add('hidden');
+    if (modalResolver) {
+        modalResolver(false);
+        modalResolver = null;
+    }
+    modalCallback = null;
+}
+
+confirmCancel.addEventListener('click', hideConfirm);
+confirmOk.addEventListener('click', () => {
+    console.log('Confirm clicked, executing callback');
+    const callback = modalCallback;  // Save callback before clearing
+    
+    // Resolve promise with true
+    if (modalResolver) {
+        modalResolver(true);
+        modalResolver = null;
+    }
+    
+    hideConfirm();
+    
+    // Also execute old-style callback if present
+    if (callback) {
+        console.log('Executing callback');
+        callback();
+    }
+});
+
+modal.addEventListener('click', (e) => {
+    if (e.target === modal) hideConfirm();
+});
+
+// Flag submission
+document.getElementById('flag-submit-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const form = e.target;
+    const formData = new FormData(form);
+    const messageDiv = document.getElementById('submission-message');
+    const submitBtn = document.getElementById('flag-submit-btn');
+    const submitText = submitBtn.querySelector('.submit-text');
+    const submitLoading = submitBtn.querySelector('.submit-loading');
+
+    // show loading state
+    submitBtn.disabled = true;
+    submitText.classList.add('hidden');
+    submitLoading.classList.remove('hidden');
+    
+    try {
+        const response = await fetch('/dojo/api/challenges/{{ challenge.id }}/submit/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                flag: formData.get('flag'),
+                {% if active_instance %}instance_id: '{{ active_instance.instance_id }}',{% endif %}
+            }),
+        });
+
+        const rawText = await response.text();
+        let data;
+        try {
+            data = rawText ? JSON.parse(rawText) : {};
+        } catch (parseError) {
+            console.warn('Non-JSON response for flag submission', parseError, rawText);
+            data = { message: 'Unexpected response from server', raw: rawText };
+        }
+        
+        // Handle errors from API
+        if (!response.ok) {
+            messageDiv.className = 'p-3 rounded-lg bg-red-500/20 border border-red-500/50 text-red-400';
+            messageDiv.innerHTML = '✗ ' + (data.error || data.message || `Submission failed (HTTP ${response.status})`);
+            messageDiv.classList.remove('hidden');
+            submitBtn.disabled = false;
+            submitText.classList.remove('hidden');
+            submitLoading.classList.add('hidden');
+            return;
+        }
+        
+        // Handle success responses
+        if (data.status === 'correct') {
+            messageDiv.className = 'p-3 rounded-lg bg-green-500/20 border border-green-500/50 text-green-400';
+            messageDiv.innerHTML = `✓ Correct! +${data.points_awarded} points awarded`;
+            
+            // Update live score display if element exists
+            const scoreElement = document.getElementById('team-score-value');
+            if (scoreElement) {
+                const currentScore = parseInt(scoreElement.textContent) || 0;
+                scoreElement.textContent = currentScore + data.points_awarded;
+            }
+            
+            // First blood handling — give animation time and avoid immediate reloads
+            if (data.is_first_blood) {
+                try {
+                    // Play first blood sound if available
+                    if (data.first_blood_sound_url) {
+                        console.log('Playing first blood sound:', data.first_blood_sound_url);
+                        playNotificationSound('correct', data.first_blood_sound_url);
+                    }
+
+                    if (window.firstBloodAnimator && typeof window.firstBloodAnimator.triggerFirstBlood === 'function') {
+                        await window.firstBloodAnimator.triggerFirstBlood({
+                            playerName: '{{ request.user.get_full_name|default:request.user.username }}',
+                            username: '{{ request.user.username }}',
+                            teamName: '{{ team.name|default:"Your Team" }}',
+                            points: data.points_awarded,
+                            teamColor: '#ff0000'
+                        });
+                    } else {
+                        console.warn('FirstBloodAnimator not ready; skipping animation');
+                        showToast('First Blood! Reloading shortly…', { title: 'First Blood', type: 'success', duration: 5000 });
+                    }
+
+                    // Delay reload to let the animation finish
+                    setTimeout(() => window.location.reload(), 12000);
+                } catch (e) {
+                    console.error('Error triggering first blood:', e);
+                    setTimeout(() => window.location.reload(), 4000);
+                }
+            } else {
+                // Reload page after 2 seconds to show updated penalty/points (no animation)
+                setTimeout(() => window.location.reload(), 2000);
+            }
+        } else if (data.status === 'incorrect') {
+            messageDiv.className = 'p-3 rounded-lg bg-red-500/20 border border-red-500/50 text-red-400';
+            if (data.points_reduced) {
+                messageDiv.innerHTML = `✗ Wrong flag! -${data.points_reduced} pts penalty applied (team-scoped)`;
+                // Reload to show updated penalty
+                setTimeout(() => window.location.reload(), 2000);
+            } else {
+                messageDiv.innerHTML = '✗ Incorrect flag';
+            }
+        } else if (data.message) {
+            messageDiv.className = 'p-3 rounded-lg bg-yellow-500/20 border border-yellow-500/50 text-yellow-400';
+            messageDiv.innerHTML = data.message;
+        } else {
+            messageDiv.className = 'p-3 rounded-lg bg-yellow-500/20 border border-yellow-500/50 text-yellow-400';
+            messageDiv.innerHTML = 'Submission received';
+        }
+        
+        messageDiv.classList.remove('hidden');
+        form.reset();
+        submitBtn.disabled = false;
+        submitText.classList.remove('hidden');
+        submitLoading.classList.add('hidden');
+    } catch (error) {
+        messageDiv.className = 'p-3 rounded-lg bg-red-500/20 border border-red-500/50 text-red-400';
+        messageDiv.innerHTML = '✗ Error submitting flag: ' + error.message;
+        messageDiv.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitText.classList.remove('hidden');
+        submitLoading.classList.add('hidden');
+    }
+});
+
+// Instance management
+async function startInstance(challengeId) {
+    console.log('startInstance called for challenge:', challengeId);
+    
+    const confirmed = await showConfirm({
+        title: '🚀 Start Instance',
+        message: 'This will allocate resources and start your timer. Your timer will begin counting down immediately.',
+        confirmText: 'Start Instance',
+        cancelText: 'Cancel',
+        type: 'warning'
+    });
+    
+    if (!confirmed) return false;
+    
+    console.log('Start instance callback executing');
+    try {
+        const btn = document.getElementById('start-btn');
+        if (!btn) {
+            console.error('start-btn not found');
+            showToast('Error: Button not found', { title: 'Error', type: 'error' });
+            return false;
+        }
+        
+        const btnText = btn.querySelector('.btn-text');
+        const btnLoading = btn.querySelector('.btn-loading');
+        
+        if (!btnText || !btnLoading) {
+            console.error('Button elements not found');
+            showToast('Error: Button elements not found', { title: 'Error', type: 'error' });
+            return false;
+        }
+
+        btn.disabled = true;
+        btnText.classList.add('hidden');
+        btnLoading.classList.remove('hidden');
+        console.log('Button loading state set');
+
+        const csrfToken = (document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken'));
+        console.log('CSRF token:', csrfToken ? 'present' : 'missing');
+
+        const response = await fetch(`/api/challenges/${challengeId}/start_instance/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify({})
+        });
+
+        console.log('Fetch response status:', response.status);
+        const data = await response.json();
+        console.log('Response data:', data);
+
+        if (response.ok) {
+            console.log('Instance start successful, reloading');
+            showToast('✓ Instance started successfully!', { title: 'Success', type: 'success' });
+            window.location.reload();
+        } else {
+            console.log('Instance start failed:', data.error);
+            btn.disabled = false;
+            btnText.classList.remove('hidden');
+            btnLoading.classList.add('hidden');
+            showToast(data.error || 'Failed to start instance', { title: 'Error', type: 'error' });
+        }
+    } catch (error) {
+        console.error('Error in start instance:', error);
+        const btn = document.getElementById('start-btn');
+        if (btn) {
+            const btnText = btn.querySelector('.btn-text');
+            const btnLoading = btn.querySelector('.btn-loading');
+            if (btnText && btnLoading) {
+                btn.disabled = false;
+                btnText.classList.remove('hidden');
+                btnLoading.classList.add('hidden');
+            }
+        }
+        showToast('Error starting instance: ' + error.message, { title: 'Error', type: 'error' });
+    }
+    
+    return false;
+}
+
+async function renewInstance(challengeId, instanceId) {
+    console.log('renewInstance called for challenge:', challengeId, 'instance:', instanceId);
+    
+    const confirmed = await showConfirm({
+        title: '🔄 Renew Instance',
+        message: 'Extend your instance timer before it expires. Additional minutes will be added to your instance timer.',
+        confirmText: 'Renew Instance',
+        cancelText: 'Cancel',
+        type: 'warning'
+    });
+    
+    if (!confirmed) return false;
+    
+    console.log('Renew instance callback executing');
+    try {
+        const btn = document.getElementById('renew-btn');
+        if (!btn) {
+            console.error('renew-btn not found');
+            showToast('Error: Button not found', { title: 'Error', type: 'error' });
+            return false;
+        }
+        
+        const btnText = btn.querySelector('.btn-text');
+        const btnLoading = btn.querySelector('.btn-loading');
+        
+        if (!btnText || !btnLoading) {
+            console.error('Button elements not found');
+            showToast('Error: Button elements not found', { title: 'Error', type: 'error' });
+            return false;
+        }
+
+        btn.disabled = true;
+        btnText.classList.add('hidden');
+        btnLoading.classList.remove('hidden');
+        console.log('Button loading state set');
+
+        const csrfToken = (document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken'));
+        console.log('CSRF token:', csrfToken ? 'present' : 'missing');
+
+        const response = await fetch(`/api/challenges/${challengeId}/renew_instance/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify({ instance_id: instanceId })
+        });
+
+        console.log('Fetch response status:', response.status);
+        const data = await response.json();
+        console.log('Response data:', data);
+
+        if (response.ok) {
+            console.log('Instance renewal successful, showing notification');
+            
+            // Play sound if enabled
+            if (data.play_sound) {
+                playNotificationSound('renewal', data.sound_url);
+            }
+            
+            // Show notification in navbar
+            if (typeof addNotification === 'function') {
+                addNotification(`✓ Instance renewed! ${data.message}`, 'success', '🔄');
+            }
+            
+            // Show toast notification
+            showToast(`✓ Instance renewed! ${data.message}`, { title: 'Instance Renewed', type: 'success' });
+            
+            // Reload after a brief delay
+            setTimeout(() => window.location.reload(), 1500);
+        } else {
+            console.log('Instance renewal failed:', data.error);
+            btn.disabled = false;
+            btnText.classList.remove('hidden');
+            btnLoading.classList.add('hidden');
+            
+            // Show error in navbar
+            if (typeof addNotification === 'function') {
+                addNotification(`✗ ${data.error || 'Failed to renew instance'}`, 'error', '⚠️');
+            }
+            
+            showToast(data.error || 'Failed to renew instance', { title: 'Error', type: 'error' });
+        }
+    } catch (error) {
+        console.error('Error in renew instance:', error);
+        const btn = document.getElementById('renew-btn');
+        if (btn) {
+            btn.disabled = false;
+            const btnText = btn.querySelector('.btn-text');
+            const btnLoading = btn.querySelector('.btn-loading');
+            if (btnText && btnLoading) {
+                btnText.classList.remove('hidden');
+                btnLoading.classList.add('hidden');
+            }
+        }
+        showToast(`Error renewing instance: ${error.message}`, { title: 'Error', type: 'error' });
+    }
+    
+    return false;
+}
+
+async function stopInstance(challengeId, instanceId) {
+    console.log('stopInstance called for challenge:', challengeId, 'instance:', instanceId);
+    
+    const confirmed = await showConfirm({
+        title: '⏹️ Stop Instance',
+        message: 'This will end your timer and clean up the instance.',
+        warning: 'A team-only penalty may be applied if you had wrong attempts.',
+        confirmText: 'Stop Instance',
+        cancelText: 'Cancel',
+        type: 'warning'
+    });
+    
+    if (!confirmed) return false;
+    
+    console.log('Stop instance callback executing');
+    
+    // Show full-page loading overlay to prevent reloading
+    showStoppingOverlay();
+    
+    try {
+        const btn = document.getElementById('stop-btn');
+        if (!btn) {
+            console.error('stop-btn not found');
+            hideStoppingOverlay();
+            showToast('Error: Button not found', { title: 'Error', type: 'error' });
+            return false;
+        }
+        
+        const btnText = btn.querySelector('.btn-text');
+        const btnLoading = btn.querySelector('.btn-loading');
+        
+        if (!btnText || !btnLoading) {
+            console.error('Button elements not found');
+            hideStoppingOverlay();
+            showToast('Error: Button elements not found', { title: 'Error', type: 'error' });
+            return false;
+        }
+
+        btn.disabled = true;
+        btnText.classList.add('hidden');
+        btnLoading.classList.remove('hidden');
+        console.log('Button loading state set');
+
+        const csrfToken = (document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken'));
+        console.log('CSRF token:', csrfToken ? 'present' : 'missing');
+
+        const response = await fetch(`/api/challenges/${challengeId}/stop_instance/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify({ instance_id: instanceId })
+        });
+
+        console.log('Fetch response status:', response.status);
+        
+        // Handle any response gracefully, even 500 errors
+        let data;
+        try {
+            data = await response.json();
+            console.log('Response data:', data);
+        } catch (e) {
+            // If JSON parsing fails (500 error), assume success and reload
+            console.warn('Failed to parse response, assuming success:', e);
+            showToast('Instance stopping... Please wait', { title: 'Processing', type: 'info' });
+            // Clear warning before reload
+            window.onbeforeunload = null;
+            setTimeout(() => {
+                window.location.reload(true);
+            }, 3000);
+            return false;
+        }
+
+        if (response.ok) {
+            console.log('Instance stop successful, reloading');
+            showToast('✓ Instance stopped successfully!', { title: 'Success', type: 'success' });
+            // Clear warning before reload
+            window.onbeforeunload = null;
+            setTimeout(() => {
+                window.location.reload(true);
+            }, 1500);
+        } else {
+            console.log('Instance stop failed:', data.error);
+            hideStoppingOverlay();
+            btn.disabled = false;
+            btnText.classList.remove('hidden');
+            btnLoading.classList.add('hidden');
+            showToast(data.error || 'Failed to stop instance', { title: 'Error', type: 'error' });
+        }
+    } catch (error) {
+        console.error('Error in stop instance:', error);
+        
+        // If we get a network error or server shutdown, assume the stop is processing
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            showToast('Instance is stopping... Reloading in a moment', { title: 'Processing', type: 'info' });
+            setTimeout(() => window.location.reload(true), 3000);
+        } else {
+            hideStoppingOverlay();
+            const btn = document.getElementById('stop-btn');
+            if (btn) {
+                const btnText = btn.querySelector('.btn-text');
+                const btnLoading = btn.querySelector('.btn-loading');
+                if (btnText && btnLoading) {
+                    btn.disabled = false;
+                    btnText.classList.remove('hidden');
+                    btnLoading.classList.add('hidden');
+                }
+            }
+            showToast('Error stopping instance: ' + error.message, { title: 'Error', type: 'error' });
+        }
+    }
+    
+    return false;
+}
+
+async function unlockHint(hintId, cost) {
+    const confirmed = await showConfirm({
+        title: 'Unlock Hint',
+        message: `Unlock this hint for ${cost} points?`,
+        confirmText: `Unlock (${cost} pts)`,
+        cancelText: 'Cancel',
+        type: 'warning'
+    });
+    if (!confirmed) return;
+    
+    try {
+        const response = await fetch(`/api/hints/${hintId}/unlock/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': (document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken')),
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showToast(`✓ ${data.message}`, { title: 'Hint Unlocked', type: 'success' });
+            window.location.reload();
+        } else {
+            showToast(data.error || 'Failed to unlock hint', { title: 'Error', type: 'error' });
+        }
+    } catch (error) {
+        showToast('Error unlocking hint: ' + error.message, { title: 'Error', type: 'error' });
+    }
+}
+
+// Update instance timer with progress bar
+let expiredAlertShown = false;
+
+function updateInstanceTimer() {
+    const timerEl = document.getElementById('instance-timer');
+    const progressEl = document.getElementById('instance-progress');
+    
+    if (!timerEl || !progressEl) return;
+    
+    // Get expiry time from data attribute (set in Django template)
+    const expiryTime = timerEl.getAttribute('data-expiry');
+    if (!expiryTime) return;
+    
+    const expiryDate = new Date(expiryTime);
+    const now = new Date();
+    const timeRemaining = expiryDate - now;
+    
+    if (timeRemaining <= 0) {
+        timerEl.textContent = '00m 00s';
+        timerEl.style.color = '#ef4444'; // red
+        progressEl.style.width = '0%';
+        progressEl.style.background = 'linear-gradient(to right, rgb(239, 68, 68), rgb(220, 38, 38))';
+        
+        // SECURITY: Disable renew button when timer hits 0
+        const renewBtn = document.getElementById('renew-btn');
+        if (renewBtn) {
+            renewBtn.disabled = true;
+            renewBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            const btnText = renewBtn.querySelector('.btn-text');
+            if (btnText) {
+                btnText.textContent = '⏱️ Instance Expired';
+            }
+        }
+        
+        // Show expiry alert once and auto-reload
+        if (!expiredAlertShown) {
+            expiredAlertShown = true;
+            showNotification(
+                '⏱️ Instance time expired! Your instance has been terminated. Reloading page...', 
+                'error', 
+                3000
+            );
+            // Auto-reload after 3 seconds to get fresh state
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+        }
+        return;
+    }
+    
+    const totalSeconds = Math.floor(timeRemaining / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    
+    // Format time as "47m 30s"
+    timerEl.textContent = `${minutes}m ${String(seconds).padStart(2, '0')}s`;
+    
+    // Get initial instance time - use it as reference for progress bar
+    // After renewal with fresh timer, the progress bar should fit properly
+    const initialTime = parseInt(timerEl.getAttribute('data-total-seconds') || '3600');
+    let percentageRemaining = (totalSeconds / initialTime) * 100;
+    
+    // Cap progress bar at 100% (after renewal, it shows from 100% counting down)
+    if (percentageRemaining > 100) {
+        percentageRemaining = 100;
+    }
+    
+    progressEl.style.width = percentageRemaining + '%';
+    
+    // Color transitions based on remaining time percentage relative to initial time
+    // Green: > 66% of initial time
+    // Yellow: 33-66% of initial time  
+    // Red: < 33% of initial time
+    if (percentageRemaining > 66) {
+        timerEl.style.color = '#4ade80'; // green
+        progressEl.style.background = 'linear-gradient(to right, rgb(74, 222, 128), rgb(34, 197, 94))';
+    } else if (percentageRemaining > 33) {
+        timerEl.style.color = '#facc15'; // yellow
+        progressEl.style.background = 'linear-gradient(to right, rgb(250, 204, 21), rgb(202, 138, 4))';
+    } else {
+        timerEl.style.color = '#ef4444'; // red
+        progressEl.style.background = 'linear-gradient(to right, rgb(239, 68, 68), rgb(220, 38, 38))';
+    }
+}
+
+// Notification System with Sound
+function showNotification(message, type = 'info', duration = 4000) {
+    // Create notification container if not exists
+    let container = document.getElementById('notification-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'notification-container';
+        container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000; max-width: 400px;';
+        document.body.appendChild(container);
+    }
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    const bgColor = {
+        'success': 'bg-green-500/20 border-green-500/50 text-green-400',
+        'error': 'bg-red-500/20 border-red-500/50 text-red-400',
+        'info': 'bg-blue-500/20 border-blue-500/50 text-blue-400',
+        'warning': 'bg-yellow-500/20 border-yellow-500/50 text-yellow-400'
+    }[type] || 'bg-gray-500/20 border-gray-500/50 text-gray-400';
+    
+    notification.className = `p-4 rounded-lg border mb-3 ${bgColor} animate-fade-in`;
+    notification.innerHTML = message;
+    
+    container.appendChild(notification);
+    
+    // Auto remove after duration
+    if (duration > 0) {
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transition = 'opacity 0.3s';
+            setTimeout(() => notification.remove(), 300);
+        }, duration);
+    }
+    
+    return notification;
+}
+
+// Notification Sound System
+const notificationSounds = {
+    'renewal': 'data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==',
+    'correct': 'data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==',
+    'error': 'data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==',
+};
+
+function playNotificationSound(type = 'info', customSoundUrl = null) {
+    try {
+        console.log('playNotificationSound called with type:', type, 'customSoundUrl:', customSoundUrl);
+        
+        // If custom sound URL provided, use audio element to play it
+        if (customSoundUrl) {
+            console.log('Creating audio element with URL:', customSoundUrl);
+            const audio = new Audio(customSoundUrl);
+            audio.volume = 0.7;
+            
+            // Add event listeners for debugging
+            audio.addEventListener('play', () => {
+                console.log('Audio started playing');
+            });
+            audio.addEventListener('error', (e) => {
+                console.error('Audio error:', e, 'Error code:', audio.error?.code);
+            });
+            audio.addEventListener('ended', () => {
+                console.log('Audio finished playing');
+            });
+            
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(e => {
+                    console.error('Audio play() rejected:', e);
+                    // Fallback to synthesized sound
+                    playFallbackSound(type);
+                });
+            }
+            return;
+        }
+        
+        // Otherwise use Web Audio API for synthesized sounds
+        playFallbackSound(type);
+    } catch (e) {
+        console.error('Exception in playNotificationSound:', e);
+    }
+}
+
+function playFallbackSound(type = 'info') {
+    try {
+        console.log('Playing fallback synthesized sound for type:', type);
+        
+        // Create audio context if needed
+        if (!window.audioContext) {
+            window.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        const ctx = window.audioContext;
+        
+        // Resume context if suspended (browser requirement)
+        if (ctx.state === 'suspended') {
+            console.log('Audio context suspended, resuming...');
+            ctx.resume().then(() => console.log('Audio context resumed'));
+        }
+        
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        
+        // Different sounds for different notification types
+        if (type === 'renewal') {
+            // High beep for renewal
+            oscillator.frequency.value = 800;
+            gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+            oscillator.start(ctx.currentTime);
+            oscillator.stop(ctx.currentTime + 0.2);
+        } else if (type === 'correct' || type === 'success') {
+            // Ascending beeps for success
+            oscillator.frequency.setValueAtTime(600, ctx.currentTime);
+            oscillator.frequency.linearRampToValueAtTime(1000, ctx.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+            oscillator.start(ctx.currentTime);
+            oscillator.stop(ctx.currentTime + 0.1);
+        } else if (type === 'error') {
+            // Descending beeps for error
+            oscillator.frequency.setValueAtTime(400, ctx.currentTime);
+            oscillator.frequency.linearRampToValueAtTime(200, ctx.currentTime + 0.2);
+            gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+            oscillator.start(ctx.currentTime);
+            oscillator.stop(ctx.currentTime + 0.2);
+        }
+        console.log('Fallback sound started');
+    } catch (e) {
+        console.error('Error playing fallback sound:', e);
+    }
+}
+
+// Start updating timer every second
+document.addEventListener('DOMContentLoaded', function() {
+    updateInstanceTimer();
+    setInterval(updateInstanceTimer, 1000);
+});
+
+function copyToClipboard(text) {
+    if (!text) {
+        console.error('No text to copy');
+        return;
+    }
+    
+    // Try modern clipboard API first
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            console.log('Text copied successfully via clipboard API');
+            if (typeof showToast === 'function') {
+                showToast('✓ Copied to clipboard!', { type: 'success', duration: 2000 });
+            } else {
+                alert('Copied to clipboard!');
+            }
+        }).catch((err) => {
+            console.error('Clipboard API failed:', err);
+            // Fallback to old method
+            copyToClipboardFallback(text);
+        });
+    } else {
+        // Fallback for older browsers or non-HTTPS contexts
+        copyToClipboardFallback(text);
+    }
+}
+
+function copyToClipboardFallback(text) {
+    try {
+        // Create a temporary textarea
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        
+        // Select and copy
+        textarea.select();
+        const successful = document.execCommand('copy');
+        
+        // Remove textarea
+        document.body.removeChild(textarea);
+        
+        if (successful) {
+            console.log('Text copied successfully via fallback method');
+            if (typeof showToast === 'function') {
+                showToast('✓ Copied to clipboard!', { type: 'success', duration: 2000 });
+            } else {
+                alert('Copied to clipboard!');
+            }
+        } else {
+            throw new Error('execCommand copy failed');
+        }
+    } catch (err) {
+        console.error('Fallback copy failed:', err);
+        if (typeof showToast === 'function') {
+            showToast('Failed to copy to clipboard', { type: 'error', duration: 2000 });
+        } else {
+            alert('Failed to copy to clipboard');
+        }
+    }
+}
+
+// Auto-stop expired instances and reduce points
+async function autoStopExpiredInstance(challengeId, instanceId) {
+    try {
+        console.log('Attempting to auto-stop expired instance:', instanceId);
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+        
+        const response = await fetch(`/api/challenges/${challengeId}/stop_instance/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify({ 
+                instance_id: instanceId,
+                reduce_points: true  // Ensure points are reduced for expiry
+            })
+        });
+        
+        const data = await response.json();
+        console.log('Auto-stop response:', data);
+        
+        if (response.ok) {
+            console.log('✓ Instance stopped and points reduced');
+            showNotification('⏱️ Instance time expired. Points penalty applied.', 'warning', 5000);
+            
+            // Show the penalty clearly
+            if (typeof addNotification === 'function') {
+                addNotification('⏱️ Instance expired - penalty applied', 'warning', '⏰');
+            }
+            
+            // Reload after brief delay
+            setTimeout(() => window.location.reload(), 2000);
+        } else {
+            console.error('Failed to auto-stop instance:', data.error);
+        }
+    } catch (error) {
+        console.error('Error auto-stopping expired instance:', error);
+    }
+}
+
+// Timer bar for active instance
+{% if active_instance %}
+document.addEventListener('DOMContentLoaded', () => {
+    const expiresAt = new Date('{{ active_instance.expires_at|date:"c" }}').getTime();
+    const startedAt = new Date('{{ active_instance.started_at|date:"c" }}').getTime();
+    const duration = expiresAt - startedAt;
+    const bar = document.createElement('div');
+    bar.className = 'w-full bg-gray-800/60 rounded-lg border border-gray-700 mt-3';
+    bar.innerHTML = `
+        <div class="px-3 py-2 flex justify-between text-xs text-gray-300">
+            <span>Instance Timer</span>
+            <span id="timer-remaining">--:--</span>
+        </div>
+        <div class="h-2 bg-gray-900 rounded-b-lg overflow-hidden">
+            <div id="timer-progress" class="h-full bg-gradient-to-r from-green-400 via-yellow-400 to-red-500" style="width:100%"></div>
+        </div>`;
+
+    const instanceCard = document.querySelector('#start-btn')?.closest('div');
+    if (instanceCard) instanceCard.appendChild(bar);
+
+    const remainingEl = document.getElementById('timer-remaining');
+    const progressEl = document.getElementById('timer-progress');
+
+    let hasExpired = false;
+    
+    const tick = () => {
+        const now = Date.now();
+        const remaining = Math.max(0, expiresAt - now);
+        const pct = Math.max(0, Math.min(100, (remaining / duration) * 100));
+        const mins = Math.floor(remaining / 60000);
+        const secs = Math.floor((remaining % 60000) / 1000);
+        remainingEl.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+        progressEl.style.width = pct + '%';
+        
+        if (remaining <= 0 && !hasExpired) {
+            hasExpired = true;
+            remainingEl.textContent = 'Expired';
+            clearInterval(timerInterval);
+            
+            // AUTO-STOP INSTANCE AND REDUCE POINTS
+            console.log('Instance expired! Auto-stopping and reducing points...');
+            autoStopExpiredInstance('{{ challenge.id }}', '{{ active_instance.id }}');
+        }
+    };
+
+    tick();
+    const timerInterval = setInterval(tick, 1000);
+});
+{% endif %}
+
+// Disable submission form if event is paused or stopped
+document.addEventListener('DOMContentLoaded', function() {
+    {% if current_event.contest_state == 'paused' %}
+    const form = document.getElementById('flag-submit-form');
+    const submitButton = form.querySelector('button[type="submit"]');
+    const flagInput = form.querySelector('input[name="flag"]');
+    
+    flagInput.disabled = true;
+    submitButton.disabled = true;
+    submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+    submitButton.textContent = 'Submissions Disabled (Event Paused)';
+    {% elif current_event.contest_state == 'stopped' %}
+    const form = document.getElementById('flag-submit-form');
+    const submitButton = form.querySelector('button[type="submit"]');
+    const flagInput = form.querySelector('input[name="flag"]');
+    
+    flagInput.disabled = true;
+    submitButton.disabled = true;
+    submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+    submitButton.textContent = 'Submissions Closed (Event Stopped)';
+    {% endif %}
+});
+</script>
+
+<!-- First Blood Animation Script -->
+<script src="{% static 'js/first-blood.js' %}"></script>
+<script>
+    // Initialize First Blood Animator
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!window.firstBloodAnimator) {
+            window.firstBloodAnimator = new FirstBloodAnimator();
+        }
+    });
+</script>
+{% endblock %}

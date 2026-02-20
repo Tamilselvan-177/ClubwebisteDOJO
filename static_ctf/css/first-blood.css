@@ -1,0 +1,457 @@
+/* ================================================================
+   FIRST BLOOD ANIMATION STYLES - Stranger Things Inspired
+   ================================================================ */
+
+/* Fade animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+/* Crack drawing animation - SVG stroke animation */
+@keyframes crackDraw {
+    from {
+        stroke-dashoffset: var(--stroke-length);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    to {
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}
+
+/* Blood drop animation */
+@keyframes bloodDrop {
+    0% {
+        transform: translate(0, 0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--x-offset), var(--y-offset));
+        opacity: 0;
+    }
+}
+
+/* Thunder/Lightning flash */
+@keyframes thunderFlash {
+    0% {
+        opacity: 0.8;
+        background-color: #00ffff;
+    }
+    100% {
+        opacity: 0;
+        background-color: #0088ff;
+    }
+}
+
+/* Flicker effect for text */
+@keyframes flicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        opacity: 1;
+    }
+    20%, 24%, 55% {
+        opacity: 0.5;
+    }
+}
+
+/* Pulse effect */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Glitch effect */
+@keyframes glitch {
+    0% {
+        clip-path: inset(40% 0 61% 0);
+        transform: translate(0);
+    }
+    20% {
+        clip-path: inset(92% 0 1% 0);
+        transform: translate(-10px, 10px);
+    }
+    40% {
+        clip-path: inset(43% 0 1% 0);
+        transform: translate(-10px, -10px);
+    }
+    60% {
+        clip-path: inset(25% 0 58% 0);
+        transform: translate(10px, 10px);
+    }
+    80% {
+        clip-path: inset(54% 0 7% 0);
+        transform: translate(10px, -10px);
+    }
+    100% {
+        clip-path: inset(58% 0 43% 0);
+        transform: translate(0);
+    }
+}
+
+/* Floating particles */
+@keyframes float {
+    0% {
+        transform: translateY(0) translateX(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) translateX(100px);
+        opacity: 0;
+    }
+}
+
+/* VHS scan lines effect */
+@keyframes vhsScanlines {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 0 10px;
+    }
+}
+
+/* Screen distortion */
+@keyframes screenGlitch {
+    0% {
+        filter: none;
+    }
+    20% {
+        filter: contrast(1.2) saturate(1.3);
+    }
+    40% {
+        filter: hue-rotate(90deg) contrast(0.9);
+    }
+    60% {
+        filter: brightness(1.2) contrast(1.1);
+    }
+    80% {
+        filter: invert(0.1) contrast(1.3);
+    }
+    100% {
+        filter: none;
+    }
+}
+
+/* Upside Down portal effect */
+@keyframes portalRotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Neon glow effect */
+@keyframes neonGlow {
+    0%, 100% {
+        text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000;
+        color: #ff4444;
+    }
+    50% {
+        text-shadow: 0 0 20px #ff0000, 0 0 30px #ff0000, 0 0 50px #ff0000;
+        color: #ff0000;
+    }
+}
+
+/* First Blood text shimmer */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+/* Crown animation (for leaderboard) */
+@keyframes crownPulse {
+    0%, 100% {
+        transform: scale(1) rotate(0deg);
+    }
+    50% {
+        transform: scale(1.2) rotate(10deg);
+    }
+}
+
+/* Ring expansion effect */
+@keyframes ringExpand {
+    0% {
+        width: 100px;
+        height: 100px;
+        opacity: 1;
+        box-shadow: 0 0 20px #ff0000, inset 0 0 20px #ff0000;
+    }
+    50% {
+        opacity: 1;
+        box-shadow: 0 0 30px #ff4444, inset 0 0 10px #ff0000;
+    }
+    100% {
+        width: 600px;
+        height: 600px;
+        opacity: 0;
+        box-shadow: 0 0 40px rgba(255, 0, 0, 0.3), inset 0 0 0px transparent;
+    }
+}
+
+/* Particle explosion effect */
+@keyframes explosionParticle {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--vx), var(--vy)) scale(0);
+        opacity: 0;
+    }
+}
+
+/* Particle explosion (less intense) */
+@keyframes particleExplode {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    70% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate(calc(var(--vx) * 1px), calc(var(--vy) * 1px)) scale(0.1);
+        opacity: 0;
+    }
+}
+
+/* Enhanced text entrance */
+@keyframes textEntrance {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) translateY(20px);
+        filter: blur(10px);
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        filter: blur(0px);
+    }
+}
+
+/* Blood splatter appearance */
+@keyframes splatterAppear {
+    0% {
+        transform: translate(-50%, -50%) scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    50% {
+        opacity: 0.9;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1) rotate(360deg);
+        opacity: 0.6;
+    }
+}
+
+/* Splatter fade out */
+@keyframes splatterFade {
+    0% {
+        opacity: 0.6;
+    }
+    70% {
+        opacity: 0.4;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Intense screen distortion */
+@keyframes screenGlitch {
+    0% {
+        filter: none;
+    }
+    10% {
+        filter: contrast(1.5) saturate(1.5) hue-rotate(10deg);
+    }
+    20% {
+        filter: contrast(0.8) brightness(1.2) invert(0.05);
+    }
+    30% {
+        filter: hue-rotate(180deg) contrast(1.3) saturate(1.8);
+    }
+    40% {
+        filter: brightness(0.9) contrast(1.2) blur(1px);
+    }
+    50% {
+        filter: brightness(1.3) hue-rotate(270deg) contrast(1.1);
+    }
+    60% {
+        filter: contrast(0.9) saturate(1.4) invert(0.1);
+    }
+    70% {
+        filter: brightness(1.1) hue-rotate(90deg) contrast(1.3);
+    }
+    80% {
+        filter: blur(0.5px) contrast(1.2) saturate(1.2);
+    }
+    90% {
+        filter: contrast(1.4) brightness(1.05);
+    }
+    100% {
+        filter: none;
+    }
+}
+
+/* ================================================================
+   CLASS-BASED ANIMATIONS
+   ================================================================ */
+
+.glitch {
+    position: relative;
+    animation: glitch 0.2s infinite;
+    display: inline-block;
+    white-space: nowrap;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.glitch::before {
+    content: attr(data-text);
+    position: absolute;
+    left: -2px;
+    top: -2px;
+    width: 100%;
+    animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite reverse;
+    color: #00ffff;
+    z-index: 1;
+    opacity: 0.8;
+}
+
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    width: 100%;
+    animation: glitch 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+    color: #ff00ff;
+    z-index: 2;
+    opacity: 0.8;
+}
+
+/* VHS effect for entire screen during First Blood */
+.vhs-distortion {
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255, 0, 0, 0.15),
+            rgba(255, 0, 0, 0.15) 1px,
+            transparent 1px,
+            transparent 2px
+        );
+    background-size: 100% 4px;
+    animation: vhsScanlines 0.15s linear infinite;
+}
+
+/* Neon text effect */
+.neon-text {
+    animation: neonGlow 2s ease-in-out infinite;
+    color: #ff0000;
+    text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+}
+
+/* First blood crown icon */
+.first-blood-crown {
+    display: inline-block;
+    animation: crownPulse 0.6s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px #ff0000);
+}
+
+/* Particle glow effects */
+.particle-ash {
+    box-shadow: 0 0 5px rgba(136, 136, 136, 0.8);
+}
+
+.particle-spore {
+    box-shadow: 0 0 10px rgba(255, 0, 255, 0.8);
+    animation: float 2s ease-out forwards;
+}
+
+.particle-spark {
+    box-shadow: 0 0 15px rgba(255, 255, 0, 1);
+    animation: float 1.5s ease-out forwards;
+}
+
+/* Sound toggle button */
+.sound-toggle {
+    position: fixed;
+    bottom-4;
+    right-4;
+    z-index: 50;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(255, 0, 0, 0.2);
+    border: 2px solid rgba(255, 0, 0, 0.5);
+    color: #ff0000;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sound-toggle:hover {
+    background: rgba(255, 0, 0, 0.3);
+    border-color: rgba(255, 0, 0, 0.8);
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+}
+
+.sound-toggle.disabled {
+    opacity: 0.5;
+}
+
+/* Accessibility: Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Dark mode intensification */
+@media (prefers-color-scheme: dark) {
+    .neon-text {
+        text-shadow: 
+            0 0 7px #ff0000,
+            0 0 10px #ff0000,
+            0 0 21px #ff0000,
+            0 0 42px #ff0000;
+    }
+}

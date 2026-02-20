@@ -1,0 +1,225 @@
+{% extends 'ctf_base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;500;700&display=swap" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<div class="teams-page">
+  <h1 class="page-title">
+    Meet the People Behind 0xTi
+  </h1>
+  <div class="team-section">
+    <div class="team-header" onclick="toggleTeam(this)">
+      Advisory Team <span>+</span>
+    </div>
+    <div class="members-scroll hidden">
+      <div class="member-card">
+        <img src="{% static 'images/advisoryteam/keerthana-advisory.JPG' %}" alt="Keerthanaa K">
+        <p>Keerthanaa K</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/advisoryteam/rahul-advisory.WEBP' %}" alt="Rahul">
+        <p class="mt-3 text-center tracking-wide text-red-300">Rahul Babu M P</p>
+      </div>
+    </div>
+  </div>
+  <div class="team-section">
+    <div class="team-header" onclick="toggleTeam(this)">
+      Executive Team <span>+</span>
+    </div>
+    <div class="members-scroll hidden">
+      <div class="member-card">
+        <img src="{% static 'images/executiveteam/santhanalakshmi-executive.jpg' %}" alt="Santhanalakshmi">
+        <p>Santhanalakshmi.B</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/executiveteam/aakash-executive.jpg' %}" alt="Aakash">
+        <p>Aakash S</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/executiveteam/sudhish-executive.jpeg' %}" alt="Sudhish">
+        <p>Sudhish Raghavendhar</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/executiveteam/yogesh-executive.png' %}" alt="Yogeshwaran">
+        <p>Yogeshwaran T</p>
+      </div>
+    </div>
+  </div>
+  <div class="team-section">
+    <div class="team-header" onclick="toggleTeam(this)">
+      Content Team <span>+</span>
+    </div>
+    <div class="members-scroll hidden">
+      <div class="member-card">
+        <img src="{% static 'images/content/harish-content.jpg' %}" alt="Harish">
+        <p>M.Harish karthikeyan</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/content/nishanth-content.png' %}" alt="Nishanth">
+        <p>Nishanth V C</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/content/mercy-content.jpg' %}" alt="Mercy Claudia Singh">
+        <p>Mercy Claudia Singh</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/content/raksha-content.jpg' %}" alt="Shriraksha Gomathisankar">
+        <p>Shriraksha Gomathisankar</p>
+      </div>
+    </div>
+  </div>
+  <div class="team-section">
+    <div class="team-header" onclick="toggleTeam(this)">
+      Cybersecurity Team <span>+</span>
+    </div>
+    <div class="members-scroll hidden">
+      <div class="member-card">
+        <img src="{% static 'images/cyberteam/nikitha-cyber.jpg' %}" alt="Nikitha A">
+        <p>Nikitha A</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/cyberteam/saiprapanchan-cyber.jpeg' %}" alt="Sai Prapanch.H">
+        <p>Sai Prapanch.H</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/cyberteam/Tharun-cyber.jpg' %}" alt="Tharun H">
+        <p>Tharun H</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/cyberteam/rathnadeepan-cyber.jpeg' %}" alt="Rathnadeepan">
+        <p>Rathnadeepan</p>
+      </div>
+    </div>
+  </div>
+  <div class="team-section">
+    <div class="team-header" onclick="toggleTeam(this)">
+      Design Team <span>+</span>
+    </div>
+    <div class="members-scroll hidden">
+      <div class="member-card">
+        <img src="{% static 'images/design/sarvesh-design.jpg' %}" alt=" Sarvesh S">
+        <p> Sarvesh S</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/design/abenathan-design.jpg' %}" alt=" Abenanthan P">
+        <p>Abenanthan P</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/design/somila-design.jpeg' %}" alt="Somila SrinivasanP">
+        <p>Somila Srinivasan</p>
+      </div>
+    </div>
+  </div>
+  <div class="team-section">
+    <div class="team-header" onclick="toggleTeam(this)">
+      Editing Team <span>+</span>
+    </div>
+    <div class="members-scroll hidden">
+      <div class="member-card">
+        <img src="{% static 'images/editingteam/raghunathan-editing.jpg' %}" alt="Raghunandhan P K">
+        <p>Raghunandhan P K</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/editingteam/renith-editing.jpg' %}" alt="RenithJoel R R">
+        <p>RenithJoel R R</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/editingteam/kavya-editing.jpg' %}" alt="Kavya Varshini H">
+        <p>Kavya Varshini H</p>
+      </div>
+    </div>
+  </div>
+  <div class="team-section">
+    <div class="team-header" onclick="toggleTeam(this)">
+      Event Team <span>+</span>
+    </div>
+    <div class="members-scroll hidden">
+      <div class="member-card">
+        <img src="{% static 'images/eventteam/venkat-event.jpg' %}" alt="Venkat Pranav">
+        <p>Venkat Pranav</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/eventteam/mahalakshmi-event.jpg' %}" alt="Mahalaxmi VPK">
+        <p>Mahalaxmi VPK</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/eventteam/anusha-event.jpg' %}" alt="Anusha.T">
+        <p>Anusha.T</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/eventteam/renuga-event.jpg' %}" alt="Renuga Devi K">
+        <p>Renuga Devi K</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/eventteam/monika-event.jpg' %}" alt="Monika E">
+        <p>Monika E</p>
+      </div>
+    </div>
+  </div>
+  <div class="team-section">
+    <div class="team-header" onclick="toggleTeam(this)">
+      PR Team <span>+</span>
+    </div>
+    <div class="members-scroll hidden">
+      <div class="member-card">
+        <img src="{% static 'images/prteam/keerthana-pr.jpg' %}" alt="Keerthana.V.V">
+        <p>Keerthana.V.V</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/prteam/angeline-pr.jpg' %}" alt="Angelin Praisee K">
+        <p>Angelin Praisee K</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/prteam/pranthee-pr.jpg' %}" alt="Pranathee H">
+        <p>Pranathee H</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/prteam/vishnuprashanth-pr.jpeg' %}" alt="S Vishnu Prashath">
+        <p>S Vishnu Prashath</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/prteam/shreya-pr.jpg' %}" alt="Shreya S">
+        <p>Shreya S</p>
+      </div>
+    </div>
+  </div>
+  <div class="team-section">
+    <div class="team-header" onclick="toggleTeam(this)">
+      Technical Team <span>+</span>
+    </div>
+    <div class="members-scroll hidden">
+      <div class="member-card">
+        <img src="{% static 'images/techteam/sitheswar-tech.jpg' %}" alt="Sitheswar">
+        <p>Sitheswar</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/techteam/kavin-tech.jpg' %}" alt="Kavinraj T">
+        <p>Kavinraj T</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/techteam/abshar-tech.png' %}" alt="Mohamed Abshar">
+        <p>Mohamed Abshar</p>
+      </div>
+      <div class="member-card">
+        <img src="{% static 'images/techteam/tamilselvan-tech.webp' %}" alt="Tamilselvan A K">
+        <p>Tamilselvan A K</p>
+      </div>
+    </div>
+  </div>
+</div>
+<p style="text-align: center; font-size: x-large;">
+  © Cyber Sentinels 2026 · Developed by <span>Tamil Selvan,Mohamed Abshar,Kavinraj</span>
+</p>
+<script>
+  function toggleTeam(header) {
+    const members = header.nextElementSibling;
+    const icon = header.querySelector("span");
+    members.classList.toggle("hidden");
+    icon.textContent = members.classList.contains("hidden") ? "+" : "−";
+  }
+</script>
+{% endblock %}

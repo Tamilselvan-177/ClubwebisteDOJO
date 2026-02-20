@@ -1,0 +1,194 @@
+{% extends 'ctf_base.html' %}
+{% load static %}
+
+{% block title %}Event Control Panel - {{ event.name }} - CYBER SENTINELS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card {
+        @apply bg-card border border-border rounded-lg p-6 hover:border-primary/50 transition-all;
+    }
+    .control-button {
+        @apply px-6 py-3 rounded-lg font-tech uppercase tracking-wider transition-all duration-300;
+    }
+    .btn-start { @apply bg-green-600 hover:bg-green-700 text-white; }
+    .btn-pause { @apply bg-yellow-600 hover:bg-yellow-700 text-white; }
+    .btn-resume { @apply bg-blue-600 hover:bg-blue-700 text-white; }
+    .btn-stop { @apply bg-red-600 hover:bg-red-700 text-white; }
+    .state-badge {
+        @apply px-3 py-1 rounded-full text-xs font-tech uppercase tracking-wider;
+    }
+    .state-running { @apply bg-green-600/20 text-green-400 border border-green-600/50; }
+    .state-paused { @apply bg-yellow-600/20 text-yellow-400 border border-yellow-600/50; }
+    .state-stopped { @apply bg-red-600/20 text-red-400 border border-red-600/50; }
+    .state-resumed { @apply bg-blue-600/20 text-blue-400 border border-blue-600/50; }
+    .state-not_started { @apply bg-gray-600/20 text-gray-400 border border-gray-600/50; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 pt-24">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-4xl font-display text-primary mb-2">{{ event.name }} ({{ event.year }})</h1>
+            <span class="state-badge state-{{ event.contest_state }}">{{ event.get_contest_state_display }}</span>
+            <span class="ml-2 text-sm text-muted-foreground">Scoreboard: {{ event.get_scoreboard_state_display }}</span>
+        </div>
+        <a href="{% url 'events_ctf:admin-dashboard' %}" class="text-muted-foreground hover:text-primary">← Back to Dashboard</a>
+    </div>
+    
+    <!-- Event Control Buttons -->
+    <div class="bg-card border border-border rounded-lg p-6 mb-8">
+        <h2 class="text-xl font-tech text-foreground mb-4">Event Controls</h2>
+        <div class="flex gap-4 flex-wrap">
+            {% if event.contest_state == 'not_started' %}
+                <button onclick="controlEvent('start')" class="control-button btn-start">
+                    ▶️ Start Event
+                </button>
+            {% elif event.contest_state in 'running,resumed' %}
+                <button onclick="controlEvent('pause')" class="control-button btn-pause">
+                    ⏸️ Pause Event
+                </button>
+                <button onclick="controlEvent('stop')" class="control-button btn-stop">
+                    🛑 Stop Event
+                </button>
+            {% elif event.contest_state == 'paused' %}
+                <button onclick="controlEvent('resume')" class="control-button btn-resume">
+                    ▶️ Resume Event
+                </button>
+                <button onclick="controlEvent('stop')" class="control-button btn-stop">
+                    🛑 Stop Event
+                </button>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Event Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="stat-card">
+            <div class="text-3xl font-display text-primary mb-2">{{ stats.total_teams }}</div>
+            <div class="text-sm text-muted-foreground font-tech uppercase">Teams</div>
+        </div>
+        <div class="stat-card">
+            <div class="text-3xl font-display text-primary mb-2">{{ stats.active_instances }}</div>
+            <div class="text-sm text-muted-foreground font-tech uppercase">Active Instances</div>
+        </div>
+        <div class="stat-card">
+            <div class="text-3xl font-display text-primary mb-2">{{ stats.total_submissions }}</div>
+            <div class="text-sm text-muted-foreground font-tech uppercase">Submissions</div>
+        </div>
+        <div class="stat-card">
+            <div class="text-3xl font-display text-red-500 mb-2">{{ stats.violations }}</div>
+            <div class="text-sm text-muted-foreground font-tech uppercase">Violations</div>
+        </div>
+    </div>
+    
+    <!-- Instance Statistics by Challenge -->
+    <div class="bg-card border border-border rounded-lg p-6 mb-8">
+        <h2 class="text-xl font-tech text-foreground mb-4">Instance Statistics</h2>
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-border">
+                    <th class="px-4 py-3 text-left font-tech text-sm uppercase text-muted-foreground">Challenge</th>
+                    <th class="px-4 py-3 text-left font-tech text-sm uppercase text-muted-foreground">Total</th>
+                    <th class="px-4 py-3 text-left font-tech text-sm uppercase text-muted-foreground">Running</th>
+                    <th class="px-4 py-3 text-left font-tech text-sm uppercase text-muted-foreground">Stopped</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in instance_stats %}
+                <tr class="border-b border-border hover:bg-muted/50">
+                    <td class="px-4 py-3 text-sm">{{ stat.challenge__name|default:"Unknown" }}</td>
+                    <td class="px-4 py-3 text-sm">{{ stat.total }}</td>
+                    <td class="px-4 py-3 text-sm text-green-400">{{ stat.running }}</td>
+                    <td class="px-4 py-3 text-sm text-red-400">{{ stat.stopped }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="px-4 py-8 text-center text-muted-foreground">No instances yet</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Recent Audit Logs -->
+    <div class="bg-card border border-border rounded-lg p-6">
+        <h2 class="text-xl font-tech text-foreground mb-4">Recent Actions</h2>
+        <div class="space-y-2">
+            {% for log in recent_logs %}
+            <div class="flex items-center justify-between p-3 bg-muted/30 rounded border border-border">
+                <div>
+                    <span class="text-sm font-tech text-muted-foreground">{{ log.timestamp|date:"M d, Y H:i:s" }}</span>
+                    <span class="ml-4 text-sm">{{ log.get_action_type_display }}</span>
+                    <span class="ml-2 text-sm text-muted-foreground">by {{ log.performed_by.username|default:"System" }}</span>
+                </div>
+                <span class="text-xs text-muted-foreground">{{ log.description|truncatewords:15 }}</span>
+            </div>
+            {% empty %}
+            <p class="text-muted-foreground text-center py-4">No recent actions</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function controlEvent(action) {
+    const actionMessages = {
+        'start': 'Are you sure you want to START this event?',
+        'pause': 'Are you sure you want to PAUSE this event? (Flag submissions will be disabled)',
+        'resume': 'Are you sure you want to RESUME this event?',
+        'stop': '⚠️ WARNING: Are you sure you want to STOP this event? This will DESTROY ALL INSTANCES and FINALIZE the scoreboard permanently!'
+    };
+    
+    if (confirm(actionMessages[action] || `Are you sure you want to ${action} this event?`)) {
+        const reason = prompt('Reason (optional, press Cancel to skip):') || '';
+        
+        // Send fetch request to API
+        fetch(`/api/admin/events/{{ event.id }}/${action}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify({
+                reason: reason
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.error || `HTTP error! status: ${response.status}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert(`✓ Event ${action.toUpperCase()} successful!\nNew state: ${data.event.contest_state}`);
+            // Reload page to show updated state
+            location.reload();
+        })
+        .catch(error => {
+            alert(`✗ Error: ${error.message}`);
+            console.error('Error:', error);
+        });
+    }
+}
+</script>
+{% endblock %}
+

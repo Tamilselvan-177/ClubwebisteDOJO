@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Events | Cyber Sentinels{% endblock %}
+
+{% block content %}
+<div class="events-page">
+
+    <div class="events-hero">
+      <h1>EVENT GALLERY</h1>
+      <p>Our club's journey through amazing events</p>
+    </div>
+
+    <div class="events-list">
+        {% for items in object_list %}
+      <div class="event-item">
+        <img
+            class="event-img"
+            src="{% if items.cover_image %}{{ items.cover_image.url }}{% else %}/static/images/default.jpg{% endif %}"
+            alt="{{ items.title }}"
+        />
+
+        <div class="event-content">
+          <h2>{{ items.title }}</h2>
+          <p class="event-info">📅 {{ items.date }}</p>
+          <p class="event-desc">{{ items.desc }}</p>
+          <button class="event-btn" onclick="window.location.href='{% url 'Events:gallery' items.slug %}'">View Pictures</button>
+        </div>
+      </div>
+        {% endfor %}
+    </div>
+
+  </div>
+{% endblock %}

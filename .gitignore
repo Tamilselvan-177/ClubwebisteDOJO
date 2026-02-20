@@ -1,0 +1,97 @@
+# ===============================
+# PYTHON
+# ===============================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.pyd
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ===============================
+# DJANGO
+# ===============================
+
+# Local database
+db.sqlite3
+db.sqlite3-journal
+
+# Media uploads (user content)
+media/
+
+# Static files collected in production
+staticfiles/
+
+# Django cache
+*.log
+
+# Secret settings / environment variables
+.env
+.env.*
+*.env
+
+# Dojo SSO (do not commit private key)
+dojo/keys/private.pem
+
+# ===============================
+# MIGRATIONS (optional)
+# Keep them if working in a team
+# ===============================
+# */migrations/*
+# !*/migrations/__init__.py
+
+# ===============================
+# EDITORS / IDEs
+# ===============================
+
+# VS Code
+.vscode/
+
+# PyCharm / IntelliJ
+.idea/
+
+# Sublime
+*.sublime-project
+*.sublime-workspace
+
+# ===============================
+# OS FILES
+# ===============================
+.DS_Store
+Thumbs.db
+
+# ===============================
+# TEST / COVERAGE
+# ===============================
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# ===============================
+# NODE 
+# ===============================
+node_modules/
+dist/
+build/
+
+# ===============================
+# NGROK
+# ===============================
+.ngrok2/
+
+# ===============================
+# MISC
+# ===============================
+*.swp
+*.bak

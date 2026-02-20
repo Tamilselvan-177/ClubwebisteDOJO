@@ -1,0 +1,174 @@
+{% extends 'ctf_base.html' %}
+{% load static %}
+
+{% block title %}First Blood Animation Test - Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/first-blood.css' %}">
+<style>
+    .test-panel {
+        background: rgba(0, 0, 0, 0.9);
+        border: 2px solid #ff0000;
+        border-radius: 10px;
+        padding: 30px;
+        max-width: 600px;
+        margin: 50px auto;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #ff0000;
+        font-weight: bold;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid #ff0000;
+        color: white;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: #ff4444;
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+    
+    .btn-trigger {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #ff0000, #cc0000);
+        border: none;
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    
+    .btn-trigger:hover {
+        background: linear-gradient(135deg, #ff4444, #ff0000);
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.7);
+        transform: scale(1.05);
+    }
+    
+    .info-box {
+        background: rgba(0, 255, 255, 0.1);
+        border: 1px solid #00ffff;
+        color: #00ffff;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-black via-red-950 to-black">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="text-center mb-8">
+            <h1 class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">
+                🩸 FIRST BLOOD ANIMATION TEST 🩸
+            </h1>
+            <p class="text-gray-400 mt-4">Test the cinematic first blood animation</p>
+        </div>
+        
+        <div class="test-panel">
+            <div class="info-box">
+                ℹ️ This tool allows admins to test the First Blood animation in real-time.
+                Fill in the challenge details and click "TRIGGER ANIMATION" to see the effect.
+                The animation includes screen lockdown, blood effects, and cinematic text reveal.
+            </div>
+            
+            <form id="first-blood-form">
+                <div class="form-group">
+                    <label for="player-name">Player Name:</label>
+                    <input type="text" id="player-name" placeholder="e.g., h4cker_elite" value="h4cker_elite" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="challenge-name">Challenge Name:</label>
+                    <input type="text" id="challenge-name" placeholder="e.g., Demogorgon Hunt" value="Demogorgon Hunt" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="team-name">Team Name:</label>
+                    <input type="text" id="team-name" placeholder="e.g., Hawkins Lab" value="Hawkins Lab" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="points">Points Awarded:</label>
+                    <input type="number" id="points" placeholder="e.g., 500" value="500" min="0" required>
+                </div>
+                
+                <button type="submit" class="btn-trigger">
+                    🎬 TRIGGER ANIMATION
+                </button>
+            </form>
+            
+            <div style="margin-top: 30px; padding: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 5px;">
+                <p style="color: #888; font-size: 12px; text-align: center;">
+                    💡 Pro tip: Sound effects work best with audio enabled. Check the speaker icon!
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sound toggle button -->
+<button id="sound-toggle" class="sound-toggle" title="Toggle sound effects">
+    <span id="sound-icon">🔊</span>
+</button>
+
+<script src="{% static 'js/first-blood.js' %}"></script>
+
+<script>
+// Sound toggle
+const soundToggle = document.getElementById('sound-toggle');
+const soundIcon = document.getElementById('sound-icon');
+
+soundToggle.addEventListener('click', () => {
+    const currentState = localStorage.getItem('sound-enabled') !== 'false';
+    localStorage.setItem('sound-enabled', currentState ? 'false' : 'true');
+    soundToggle.classList.toggle('disabled');
+    soundIcon.textContent = currentState ? '🔇' : '🔊';
+});
+
+if (localStorage.getItem('sound-enabled') === 'false') {
+    soundToggle.classList.add('disabled');
+    soundIcon.textContent = '🔇';
+}
+
+// Handle form submission
+document.getElementById('first-blood-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const animator = window.firstBloodAnimator;
+    if (!animator) {
+        alert('First Blood animator not initialized');
+        return;
+    }
+    
+    const data = {
+        playerName: document.getElementById('player-name').value,
+        challengeName: document.getElementById('challenge-name').value,
+        teamName: document.getElementById('team-name').value,
+        points: parseInt(document.getElementById('points').value)
+    };
+    
+    await animator.triggerFirstBlood(data);
+});
+</script>
+{% endblock %}

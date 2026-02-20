@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Cyber Sentinels{% endblock %}</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/blogs.css' %}">
+    <link rel="stylesheet" href="{% static 'css/About.css' %}">
+    <link rel="stylesheet" href="{% static 'css/events.css' %}">
+    <link rel="stylesheet" href="{% static 'css/event_gallery.css' %}">
+    <link rel="stylesheet" href="{% static 'css/team.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% include 'navbar.html' %}
+    {% block content %}
+    {% endblock %}
+    {% include 'footer.html' %}
+    {% block extra_js %}{% endblock %}
+</body>
+ <script>
+lucide.createIcons();
+
+window.addEventListener("load", () => {
+
+  document.querySelectorAll(".carousel-track").forEach(track => {
+
+    const container = track.parentElement;
+
+    const originalContent = track.innerHTML;
+
+    const speed = 0.5;
+    let currentSpeed = speed;
+    let targetSpeed = speed;
+
+    /* ================= CHECK IF SCROLL IS NEEDED ================= */
+
+    const isScrollable = track.scrollWidth > container.clientWidth;
+
+    if (!isScrollable) {
+      /* CENTER CARDS */
+      track.style.justifyContent = "center";
+      track.style.width = "100%";
+      track.style.scrollLeft = 0;
+
+      return;
+    }
+
+    /* ================= ENABLE INFINITE SCROLL ================= */
+
+    track.innerHTML += originalContent;
+
+    let halfWidth = track.scrollWidth / 2;
+
+    function animate() {
+
+      currentSpeed += (targetSpeed - currentSpeed) * 0.05;
+
+      track.scrollLeft += currentSpeed;
+
+      if (track.scrollLeft >= halfWidth) {
+        track.scrollLeft = 0;
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    /* ================= HOVER / TOUCH ================= */
+
+    track.addEventListener("mouseenter", () => targetSpeed = 0.4);
+    track.addEventListener("mouseleave", () => targetSpeed = speed);
+
+    track.addEventListener("touchstart", () => targetSpeed = 0.3);
+    track.addEventListener("touchend", () => targetSpeed = speed);
+
+  });
+
+});
+    </script>
+</html>

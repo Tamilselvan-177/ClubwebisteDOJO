@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Writeups | Cyber Sentinels{% endblock %}
+
+{% block content %}
+<main class="blog-page">
+
+  <section class="blog-hero">
+    <h1>Writeups</h1>
+    <p>Practical insights from solved CTFs</p>
+  </section>
+
+  <section class="blog-list">
+    {% for wu in object_list %}
+    <div class="grid-container">
+
+      <div class="blog-card">
+        <div class="blog-meta">
+          <i data-lucide="calendar"></i>
+          <span>{{ wu.date }}</span>
+        </div>
+
+        <h3>{{ wu.title }}</h3>
+        <p>
+          {{ wu.summary }}
+        </p>
+
+        <a href="{% url 'writeups:writeup' wu.pk %}">
+          Read More
+          <i data-lucide="chevrons-right"></i>
+        </a>
+      </div>
+
+    </div>
+    {% endfor %}
+  </section>
+
+</main>
+{% endblock %}

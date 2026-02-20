@@ -1,0 +1,363 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+
+{% block title %}Admin Scoreboard - {{ current_event.name }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/first-blood.css' %}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+    .admin-scoreboard-wrapper {
+        background: #f8f9fa;
+        padding: 20px;
+        min-height: 100vh;
+    }
+    
+    .event-header {
+        background: white;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .event-header h1 {
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+    
+    .event-meta {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .badge {
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+    }
+    
+    .badge-live {
+        background: #28a745;
+        color: white;
+    }
+    
+    .badge-frozen {
+        background: #17a2b8;
+        color: white;
+    }
+    
+    .badge-finalized {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .admin-notice {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        padding: 12px 16px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        color: #856404;
+    }
+    
+    .scoreboard-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .team-row {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+        transition: background 0.2s;
+    }
+    
+    .team-row:hover {
+        background: #f8f9fa;
+    }
+    
+    .team-row.banned {
+        background: #fff5f5;
+        border-left: 3px solid #dc3545;
+    }
+    
+    .rank {
+        width: 60px;
+        font-weight: bold;
+        font-size: 18px;
+        color: #666;
+    }
+    
+    .team-info {
+        flex: 1;
+    }
+    
+    .team-name {
+        font-weight: 600;
+        font-size: 16px;
+        color: #333;
+    }
+    
+    .team-banned-badge {
+        background: #dc3545;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-size: 11px;
+        margin-left: 8px;
+    }
+    
+    .team-stats {
+        display: flex;
+        gap: 15px;
+        margin-top: 5px;
+        font-size: 13px;
+        color: #666;
+    }
+    
+    .score {
+        font-size: 24px;
+        font-weight: bold;
+        color: #28a745;
+        min-width: 100px;
+        text-align: right;
+    }
+    
+    .graph-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    .graph-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #333;
+    }
+    
+    canvas {
+        max-height: 320px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-scoreboard-wrapper">
+    <div class="event-header">
+        <h1>📊 Scoreboard - {{ current_event.name }}</h1>
+        <div class="event-meta">
+            <span>Event Year: {{ current_event.year }}</span>
+            <span>|</span>
+            <span class="badge badge-{{ scoreboard_state }}">{{ scoreboard_state }}</span>
+            {% if is_scoreboard_frozen %}
+                <span class="badge badge-frozen">Frozen</span>
+            {% endif %}
+            {% if current_event.is_active %}
+                <span class="badge badge-live">Active</span>
+            {% else %}
+                <span class="badge" style="background: #dc3545; color: white;">Inactive</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="admin-notice">
+        <strong>🔐 Admin View:</strong> This scoreboard includes ALL teams including banned teams. Regular users won't see banned teams on their scoreboard.
+        {% if freeze_time %}
+            <br>
+            <strong>❄️ Frozen at:</strong> {{ freeze_time|date:"Y-m-d H:i:s" }} UTC
+        {% endif %}
+    </div>
+    
+    {% if teams %}
+        <!-- Score Graph -->
+        <div class="graph-container">
+            <div class="graph-title">Score Progression</div>
+            <canvas id="scoreChart"></canvas>
+        </div>
+        
+        <!-- Scoreboard Table -->
+        <div class="scoreboard-container">
+            <h2 style="margin: 0 0 20px 0; color: #333;">Team Rankings</h2>
+            
+            {% for entry in teams %}
+                <div class="team-row {% if entry.team.is_banned %}banned{% endif %}">
+                    <div class="rank">
+                        {% if forloop.counter == 1 %}🥇
+                        {% elif forloop.counter == 2 %}🥈
+                        {% elif forloop.counter == 3 %}🥉
+                        {% else %}#{{ forloop.counter }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="team-info">
+                        <div class="team-name">
+                            {{ entry.team.name }}
+                            {% if entry.team.is_banned %}
+                                <span class="team-banned-badge">BANNED</span>
+                            {% endif %}
+                        </div>
+                        <div class="team-stats">
+                            <span>🔥 {{ entry.solved_count }}/{{ total_challenges }} solves</span>
+                            <span>⏱️ Last solve: {{ entry.last_solve_time|timesince }} ago</span>
+                            {% if entry.penalty_points != 0 %}
+                                <span style="color: #dc3545;">⚠️ Penalty: {{ entry.penalty_points }} pts</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="score">{{ entry.total_score }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="scoreboard-container">
+            <p style="text-align: center; padding: 40px; color: #666;">No teams have scored yet.</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+// Pass Django context data to JavaScript
+window.teamsGraphData = {{ teams_graph_data|safe }};
+
+// Score Graph
+const scoreGraph = {
+    chart: null,
+    teamColors: [
+        '#ef4444', '#f97316', '#facc15', '#22c55e', '#3b82f6', '#a855f7',
+        '#ec4899', '#06b6d4', '#14b8a6', '#84cc16'
+    ],
+
+    processTeamData: function(teams) {
+        const allTimes = new Set();
+        
+        teams.forEach(team => {
+            if (team.solves) {
+                team.solves.forEach(solve => allTimes.add(solve.time));
+            }
+        });
+        
+        const sortedTimes = Array.from(allTimes).sort((a, b) => new Date(a) - new Date(b));
+        
+        return teams.map((team, idx) => {
+            let cumulativeScore = 0;
+            const dataPoints = sortedTimes.map(time => {
+                const solve = team.solves ? team.solves.find(s => s.time === time) : null;
+                if (solve) {
+                    cumulativeScore += solve.points;
+                }
+                return cumulativeScore;
+            });
+            
+            const color = team.color || this.teamColors[idx % this.teamColors.length];
+            
+            return {
+                label: team.name,
+                data: dataPoints,
+                borderColor: color,
+                backgroundColor: color + '20',
+                tension: 0.4,
+                fill: false,
+                borderWidth: 2.5,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            };
+        });
+    },
+
+    createChart: function() {
+        const ctx = document.getElementById('scoreChart');
+        if (!ctx) return;
+        
+        const teamsData = window.teamsGraphData || [];
+        
+        const allTimes = new Set();
+        teamsData.forEach(team => {
+            if (team.solves) {
+                team.solves.forEach(solve => allTimes.add(solve.time));
+            }
+        });
+        const sortedTimes = Array.from(allTimes).sort((a, b) => new Date(a) - new Date(b));
+        const labels = sortedTimes.map(t => {
+            const date = new Date(t);
+            return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        });
+
+        const datasets = this.processTeamData(teamsData);
+
+        this.chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        titleColor: '#ef4444',
+                        bodyColor: '#fff',
+                        borderColor: '#ef4444',
+                        borderWidth: 1,
+                        padding: 12,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y + ' pts';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                }
+            }
+        });
+    },
+
+    init: function() {
+        this.createChart();
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    scoreGraph.init();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,309 @@
+{% extends 'ctf_base.html' %}
+{% load static %}
+
+{% block title %}{{ team.name }} - Team - CYBER SENTINELS CTF{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-black via-[#1a0b0b] to-black">
+    <!-- Header -->
+    <div class="bg-black/60 border-b border-red-500/40 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-400 to-amber-300 drop-shadow-[0_0_12px_rgba(255,0,0,0.35)]">
+                    👥 {{ team.name }}
+                </h1>
+                <a href="/dojo/teams/" class="px-4 py-2 bg-red-700/70 hover:bg-red-600 text-white rounded transition border border-red-500/40 shadow-lg shadow-red-900/40">
+                    Back to Teams
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Team Info Card -->
+        <div class="bg-gradient-to-br from-[#120606]/95 to-[#1c0a0a]/90 border border-red-600/30 rounded-lg overflow-hidden mb-8 shadow-xl shadow-red-900/30">
+            <div class="bg-gradient-to-r from-red-700/30 via-red-600/20 to-amber-600/10 border-b border-red-600/40 px-8 py-6">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white mb-2 drop-shadow-[0_0_8px_rgba(255,0,0,0.3)]">{{ team.name }}</h2>
+                        <p class="text-gray-300">
+                            Captain: <span class="text-red-300 font-semibold">{{ team.captain.username }}</span>
+                            {% if team.captain == user %}
+                                <span class="ml-2 text-amber-300">👑 (You)</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% if is_member %}
+                        {% if team.captain == user %}
+                            <span class="px-4 py-2 bg-amber-500/15 border border-amber-400/60 rounded text-amber-200 text-sm font-semibold">
+                                Team Captain
+                            </span>
+                        {% else %}
+                            <span class="px-4 py-2 bg-red-500/15 border border-red-400/50 rounded text-red-200 text-sm font-semibold">Member</span>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                {% if team.description %}
+                    <p class="text-gray-200 mt-4">{{ team.description }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Team Stats -->
+            <div class="grid grid-cols-3 divide-x divide-red-900/60 border-b border-red-900/60">
+                <div class="px-6 py-4 text-center">
+                    <div class="text-3xl font-bold text-red-200 drop-shadow-[0_0_8px_rgba(255,0,0,0.3)]">{{ team_stats.member_count }}</div>
+                    <div class="text-sm text-red-100/70 mt-1">Members</div>
+                </div>
+                <div class="px-6 py-4 text-center">
+                    <div class="text-3xl font-bold text-amber-200 drop-shadow-[0_0_8px_rgba(255,140,0,0.3)]">{{ team_stats.total_score|default:"0" }}</div>
+                    <div class="text-sm text-red-100/70 mt-1">Total Score</div>
+                </div>
+                <div class="px-6 py-4 text-center">
+                    <div class="text-3xl font-bold text-pink-200 drop-shadow-[0_0_8px_rgba(255,105,180,0.3)]">{{ team_stats.rank|default:"—" }}</div>
+                    <div class="text-sm text-red-100/70 mt-1">Rank</div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="px-8 py-6">
+                {% if not is_member %}
+                    <form method="post" action="/api/teams/{{ team.id }}/request_join/" id="request-join-form">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full px-6 py-3 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-lg transition border border-red-500/60 shadow-lg shadow-red-900/40">
+                            🤝 Request to Join
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Pending Join Requests (Captain Only) -->
+        {% if is_captain %}
+            <div class="bg-gradient-to-br from-[#190707]/95 to-[#240a0a]/90 border border-red-700/40 rounded-lg overflow-hidden mt-8 shadow-lg shadow-red-900/30">
+                <div class="bg-gradient-to-r from-red-700/30 via-red-600/20 to-amber-600/10 border-b border-red-700/40 px-8 py-4">
+                    <h3 class="text-xl font-bold text-red-200 drop-shadow-[0_0_8px_rgba(255,0,0,0.35)]">📋 Pending Join Requests ({{ pending_requests|length }})</h3>
+                </div>
+                <div class="p-6">
+                    {% if pending_requests %}
+                        <div class="space-y-3">
+                            {% for request in pending_requests %}
+                                <div class="flex items-center justify-between p-4 bg-red-600/10 border border-red-600/30 rounded-lg">
+                                    <div class="flex items-center gap-4 flex-1">
+                                        <div class="w-12 h-12 bg-gradient-to-br from-red-600 to-amber-500 rounded-full flex items-center justify-center text-xl font-bold text-white">
+                                            {{ request.user.username|slice:":1"|upper }}
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-white">{{ request.user.username }}</p>
+                                            <p class="text-sm text-red-100/80">Requested {{ request.joined_at|date:"M d, Y" }}</p>
+                                            {% if request.request_message %}
+                                                <p class="text-sm text-amber-200 mt-1">Message: {{ request.request_message }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button class="accept-request px-4 py-2 bg-green-500/20 border border-green-500/50 text-green-400 text-sm rounded hover:bg-green-500/30 transition" data-username="{{ request.user.username }}" data-team="{{ team.id }}">
+                                            ✓ Accept
+                                        </button>
+                                        <button class="reject-request px-4 py-2 bg-red-500/20 border border-red-500/50 text-red-400 text-sm rounded hover:bg-red-500/30 transition" data-username="{{ request.user.username }}" data-team="{{ team.id }}">
+                                            ✗ Reject
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-gray-400 text-center py-8">No pending requests</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Team Solves -->
+        <div class="bg-gradient-to-br from-[#120606]/95 to-[#1c0a0a]/90 border border-red-700/40 rounded-lg overflow-hidden shadow-lg shadow-red-900/30 mt-8">
+            <div class="bg-gradient-to-r from-red-700/30 via-red-600/20 to-amber-600/10 border-b border-red-700/40 px-8 py-4 flex items-center justify-between">
+                <h3 class="text-xl font-bold text-red-200 drop-shadow-[0_0_8px_rgba(255,0,0,0.35)]">🏆 Team Solves</h3>
+                <span class="text-sm text-gray-400">Total: {{ team_solves|length }}</span>
+            </div>
+            <div class="p-6 overflow-auto">
+                {% if team_solves %}
+                <table class="min-w-full text-left text-sm">
+                    <thead class="bg-red-900/20 text-red-200">
+                        <tr>
+                            <th class="px-3 py-2">Challenge</th>
+                            <th class="px-3 py-2">Solved By</th>
+                            <th class="px-3 py-2">Points</th>
+                            <th class="px-3 py-2">Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sub in team_solves %}
+                        <tr class="border-b border-red-900/50">
+                            <td class="px-3 py-2 text-white"><a href="/dojo/challenges/{{ sub.challenge.id }}/" class="hover:underline">{{ sub.challenge.name }}</a></td>
+                            <td class="px-3 py-2 text-gray-300">{{ sub.user.username }}</td>
+                            <td class="px-3 py-2 text-green-400">+{{ sub.points_awarded }}</td>
+                            <td class="px-3 py-2 text-gray-400">{{ sub.submitted_at|date:"M d, Y g:i A" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-gray-400">No solves yet.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Team Members -->
+        <div class="bg-gradient-to-br from-[#120606]/95 to-[#1c0a0a]/90 border border-red-700/40 rounded-lg overflow-hidden shadow-lg shadow-red-900/30">
+            <div class="bg-gradient-to-r from-red-700/30 via-red-600/20 to-amber-600/10 border-b border-red-700/40 px-8 py-4">
+                <h3 class="text-xl font-bold text-red-200 drop-shadow-[0_0_8px_rgba(255,0,0,0.35)]">Team Members ({{ members|length }})</h3>
+            </div>
+            <div class="p-6">
+                {% if members %}
+                    <div class="space-y-3">
+                        {% for membership in members %}
+                            <div class="flex items-center justify-between p-4 bg-red-700/10 border border-red-800/60 rounded-lg hover:border-red-500/60 transition shadow-sm shadow-red-900/20">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-red-600 to-amber-500 rounded-full flex items-center justify-center text-xl font-bold text-white">
+                                        {{ membership.user.username|slice:":1"|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <p class="font-semibold text-white">{{ membership.user.username }}</p>
+                                            {% if membership.user == team.captain %}
+                                                <span class="text-yellow-400 text-xl" title="Team Captain">👑</span>
+                                            {% endif %}
+                                            {% if membership.user == user %}
+                                                <span class="text-xs px-2 py-1 bg-red-500/20 border border-red-500/50 rounded text-red-200">You</span>
+                                            {% endif %}
+                                        </div>
+                                        <p class="text-sm text-red-100/80">Joined {{ membership.joined_at|date:"M d, Y" }}</p>
+                                    </div>
+                                </div>
+                                {% if team.captain == user and membership.user != user and membership.user != team.captain %}
+                                    <!-- <button class="px-3 py-1 bg-red-500/20 border border-red-500/50 text-red-400 text-sm rounded hover:bg-red-500/30 transition">
+                                        Remove
+                                    </button> -->
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-gray-400 text-center py-8">No members yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Read CSRF token from cookie (works even when no form CSRF input is rendered)
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return '';
+}
+const csrfToken = getCookie('csrftoken');
+
+// Handle request to join
+const requestJoinForm = document.getElementById('request-join-form');
+if (requestJoinForm) {
+    requestJoinForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch(requestJoinForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: '' })
+            });
+            if (response.ok) {
+                showToast('Join request sent! Waiting for captain approval.', { title: 'Request Sent', type: 'success' });
+                window.location.reload();
+            } else {
+                const data = await response.json();
+                showToast(data.error || 'Failed to send join request', { title: 'Error', type: 'error' });
+            }
+        } catch (error) {
+            showToast('An error occurred', { title: 'Error', type: 'error' });
+        }
+    });
+}
+
+// Handle accept join request
+document.querySelectorAll('.accept-request').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const username = btn.dataset.username;
+        const teamId = btn.dataset.team;
+        const confirmed = await showConfirm({
+            title: 'Accept Join Request',
+            message: `Accept join request from ${username}?`,
+            confirmText: 'Accept',
+            cancelText: 'Cancel',
+            type: 'warning'
+        });
+        if (!confirmed) return;
+        
+        try {
+            const response = await fetch(`/api/teams/${teamId}/accept_join_request/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: username })
+            });
+            if (response.ok) {
+                showToast('Join request accepted', { title: 'Success', type: 'success' });
+                window.location.reload();
+            } else {
+                const data = await response.json();
+                showToast(data.error || 'Failed to accept request', { title: 'Error', type: 'error' });
+            }
+        } catch (error) {
+            showToast('An error occurred', { title: 'Error', type: 'error' });
+        }
+    });
+});
+
+// Handle reject join request
+document.querySelectorAll('.reject-request').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const username = btn.dataset.username;
+        const teamId = btn.dataset.team;
+        const confirmed = await showConfirm({
+            title: 'Reject Join Request',
+            message: `Reject join request from ${username}?`,
+            confirmText: 'Reject',
+            cancelText: 'Cancel',
+            type: 'warning'
+        });
+        if (!confirmed) return;
+        
+        try {
+            const response = await fetch(`/api/teams/${teamId}/reject_join_request/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: username })
+            });
+            if (response.ok) {
+                showToast('Join request rejected', { title: 'Success', type: 'info' });
+                window.location.reload();
+            } else {
+                const data = await response.json();
+                showToast(data.error || 'Failed to reject request', { title: 'Error', type: 'error' });
+            }
+        } catch (error) {
+            showToast('An error occurred', { title: 'Error', type: 'error' });
+        }
+    });
+});
+</script>
+{% endblock %}

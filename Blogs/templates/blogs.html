@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Blogs | Cyber Sentinels{% endblock %}
+
+{% block content %}
+<main class="blog-page">
+
+  <section class="blog-hero">
+    <h1>Blogs</h1>
+    <p>Insights, write-ups, and cybersecurity knowledge.</p>
+  </section>
+
+  <section class="blog-list">
+    {% for blog in object_list %}
+    <div class="grid-container">
+
+      <div class="blog-card">
+        <div class="blog-meta">
+          <i data-lucide="calendar"></i>
+          <span>{{ blog.date }}</span>
+        </div>
+
+        <h3>{{ blog.title }}</h3>
+        <p>
+          {{ blog.desc }}
+        </p>
+
+        <a href="{% url 'Blogs:blog' blog.slug %}">
+          Read More
+          <i data-lucide="chevrons-right"></i>
+        </a>
+      </div>
+
+    </div>
+    <br/>
+    {% endfor %}
+  </section>
+
+</main>
+{% endblock %}

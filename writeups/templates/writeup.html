@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load markdown_extras %}
+{% block title %}Writeups | Cyber Sentinels{% endblock %}
+
+{% block content %}
+<main class="blog-page">
+
+  <section class="blog-detail-hero">
+    <h1>{{ object.title }}</h1>
+    <p class="blog-detail-subtitle">{{ object.date }}</p>
+    <br/>
+    <br/>
+    <p class="blog-detail-body">{{ object.content|markdownify|safe|linebreaks }}</p>
+    <br/>
+    <br/>
+    <p class="blog-detail-subtitle">Written & Posted by {{ object.author }}</p>
+    <p class="blog-detail-subtitle">{{ object.position }}, Cyber Sentinels</p>
+  </section>
+</main>
+{% endblock %}

@@ -1,0 +1,134 @@
+/* Dojo embed and login – matches club base theme (blue/grey) */
+.dojo-container {
+  min-height: 60vh;
+  padding: 1.5rem;
+}
+
+.dojo-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.dojo-header h1 {
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+
+.dojo-header p {
+  color: var(--text-muted);
+}
+
+.dojo-warning {
+  color: var(--accent-cyan);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.dojo-frame-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-card);
+  min-height: 70vh;
+}
+
+.dojo-frame-wrapper iframe {
+  display: block;
+  width: 100%;
+  min-height: 70vh;
+  border: none;
+}
+
+/* Login */
+.dojo-login-container {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.dojo-login-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+}
+
+.dojo-login-card h1 {
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+
+.dojo-login-card > p {
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.dojo-messages {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.dojo-message {
+  padding: 0.5rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.dojo-message.error {
+  background: rgba(200, 80, 80, 0.2);
+  color: #fca5a5;
+}
+
+.dojo-message.success {
+  background: rgba(80, 200, 120, 0.2);
+  color: #86efac;
+}
+
+.dojo-login-form label {
+  display: block;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.dojo-login-form input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 1rem;
+  background: var(--bg-deep);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-main);
+}
+
+.dojo-login-form button {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--accent-cyan);
+  color: #050a12;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dojo-login-form button:hover {
+  filter: brightness(1.1);
+}
+
+.dojo-login-footer {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.dojo-login-footer a {
+  color: var(--accent-cyan);
+}

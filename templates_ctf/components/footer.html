@@ -1,0 +1,51 @@
+{% load static %}
+<footer class="relative py-12 border-t border-border bg-card/50">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+            <a href="/dojo/" class="flex items-center gap-2 group">
+
+<img src="{% static 'images/logo.jpeg' %}"
+    alt="logo"
+    class="h-8 w-8 sm:h-9 sm:w-9 object-contain flex-shrink-0 rounded-full bg-transparent mix-blend-lighten">
+                <span class="font-tech text-xl text-primary text-glow-sm">
+                    CYBER
+                </span>
+                <span class="font-tech text-xl text-foreground">SENTINELS</span>
+            </a>
+            <div class="flex items-center gap-8">
+                <a href="#" class="font-tech text-xs uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors">
+                    Rules
+                </a>
+                <a href="#" class="font-tech text-xs uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors">
+                    FAQ
+                </a>
+                <a href="#" class="font-tech text-xs uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors">
+                    Sponsors
+                </a>
+                <a href="#" class="font-tech text-xs uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors">
+                    Contact
+                </a>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="https://www.instagram.com/cybersentinels_rec/" target="_blank" rel="noopener noreferrer" class="p-2 text-muted-foreground hover:text-primary transition-colors">
+                    <i data-lucide="instagram" class="w-5 h-5"></i>
+                </a>
+                <a href="https://www.linkedin.com/company/cyber-sentinels/" target="_blank" rel="noopener noreferrer" class="p-2 text-muted-foreground hover:text-primary transition-colors">
+                    <i data-lucide="linkedin" class="w-5 h-5"></i>
+                </a>
+            </div>
+        </div>
+        <div class="mt-8 pt-8 border-t border-border/50 text-center">
+            <p class="font-mono text-xs text-muted-foreground">
+                © 2026 CYBER SENTINELS. All rights reserved.
+                <br/>
+                <br/>
+                <span class="text-primary ml-2">
+                    Friends don't lie. Neither do flags.
+                </span>
+            </p>
+        </div>
+    </div>
+</footer>
+<script>lucide.createIcons();</script>
+

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Your Email - CYBER SENTINELS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+        
+        .container {
+            background: rgba(20, 20, 20, 0.9);
+            border: 2px solid #E50914;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(229, 9, 20, 0.3);
+            text-align: center;
+        }
+        
+        .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #E50914;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .email-display {
+            background: rgba(229, 9, 20, 0.1);
+            border: 1px solid #E50914;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 25px 0;
+            font-size: 16px;
+            color: #E50914;
+            font-weight: 600;
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid #E50914;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
+            border-radius: 4px;
+        }
+        
+        .instructions h3 {
+            color: #E50914;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            color: #ccc;
+        }
+        
+        .instructions li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        
+        .button-group {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: #E50914;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #b80710;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(229, 9, 20, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .note {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 6px;
+            color: #ffc107;
+            font-size: 14px;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #E50914;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert-success {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+        }
+        
+        .alert-error {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid #f44336;
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📧</div>
+        <h1>Check Your Email</h1>
+        <p class="subtitle">We've sent you a verification link</p>
+        
+        <div id="alertSuccess" class="alert alert-success"></div>
+        <div id="alertError" class="alert alert-error"></div>
+        
+        <div class="email-display" id="emailDisplay">
+            {{ email }}
+        </div>
+        
+        <div class="instructions">
+            <h3>📋 Next Steps:</h3>
+            <ol>
+                <li>Open your email inbox</li>
+                <li>Look for an email from <strong>CYBER SENTINELS CTF</strong></li>
+                <li>Click the <strong>"Verify Email"</strong> button in the email</li>
+                <li>You'll be automatically verified and can login!</li>
+            </ol>
+        </div>
+        
+        <div class="note">
+            ⏱️ The verification link expires in <strong>24 hours</strong>
+        </div>
+        
+        <div class="button-group">
+            <button id="resendBtn" class="btn btn-primary">
+                📤 Resend Verification Email
+            </button>
+            <a href="/dojo/accounts/login/" class="btn btn-secondary">
+                ← Back to Login
+            </a>
+        </div>
+        
+        <div class="footer">
+            Didn't receive the email? Check your spam folder or click "Resend Verification Email"
+        </div>
+    </div>
+
+    <script>
+        const resendBtn = document.getElementById('resendBtn');
+        const alertSuccess = document.getElementById('alertSuccess');
+        const alertError = document.getElementById('alertError');
+        const emailDisplay = document.getElementById('emailDisplay');
+        
+        // Get email from display or URL
+        let userEmail = emailDisplay ? emailDisplay.textContent.trim() : '';
+        if (!userEmail) {
+            const urlParams = new URLSearchParams(window.location.search);
+            userEmail = urlParams.get('email') || '';
+        }
+        
+        resendBtn.addEventListener('click', async () => {
+            if (!userEmail) {
+                showError('Email not found. Please try registering again.');
+                return;
+            }
+            
+            // Disable button and show loading
+            resendBtn.disabled = true;
+            const originalText = resendBtn.innerHTML;
+            resendBtn.innerHTML = '⏳ Sending...';
+            
+            // Hide previous alerts
+            alertSuccess.style.display = 'none';
+            alertError.style.display = 'none';
+            
+            try {
+                const response = await fetch('/dojo/api/auth/resend-verification/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: userEmail })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess('✅ Verification email sent! Check your inbox.');
+                } else {
+                    showError(data.error || data.email?.[0] || 'Failed to send email. Please try again.');
+                }
+            } catch (error) {
+                showError('Network error. Please check your connection and try again.');
+            } finally {
+                resendBtn.disabled = false;
+                resendBtn.innerHTML = originalText;
+            }
+        });
+        
+        function showSuccess(message) {
+            alertSuccess.textContent = message;
+            alertSuccess.style.display = 'block';
+            alertError.style.display = 'none';
+        }
+        
+        function showError(message) {
+            alertError.textContent = message;
+            alertError.style.display = 'block';
+            alertSuccess.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

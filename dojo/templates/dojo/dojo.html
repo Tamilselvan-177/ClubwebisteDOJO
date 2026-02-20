@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Sentinels Dojo – CTF{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'dojo/dojo.css' %}">
+{% endblock %}
+{% block content %}
+<div class="dojo-container">
+    <div class="dojo-header">
+        <h1>Sentinels Dojo</h1>
+        <p>Practice challenges and compete on the club CTF platform.</p>
+        {% if not dojo_token %}
+        <p class="dojo-warning">Single sign-on is not configured. Log in to the CTF directly if it is running.</p>
+        {% endif %}
+    </div>
+    <div class="dojo-frame-wrapper">
+        <iframe
+            id="dojo-iframe"
+            src="{% if ctf_dojo_url %}{{ ctf_dojo_url }}{% else %}{{ ctf_base_url }}{% endif %}"
+            title="Sentinels Dojo CTF"
+            allow="fullscreen"
+        ></iframe>
+    </div>
+</div>
+{% endblock %}

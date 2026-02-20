@@ -1,0 +1,59 @@
+<header>
+        <div class="nav-container">
+            <div class="logo">
+                {% load static %}
+                <img src="{% static 'images/CyanLogo.png' %}" style="width: 35px; height: 35px; color: var(--accent-cyan)"></img>
+                CYBER SENTINELS
+            </div>
+            <nav>
+                <ul>
+                    <li>
+      <a href="{% url 'home:home' %}"
+         class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+         Home
+      </a>
+    </li>
+
+    <li>
+      <a href="{% url 'home:aboutus' %}"
+         class="{% if request.resolver_match.url_name == 'aboutus' %}active{% endif %}">
+         About Us
+      </a>
+    </li>
+
+    <li>
+      <a href="{% url 'Events:events' %}"
+         class="{% if request.resolver_match.url_name == 'events' %}active{% endif %}">
+         Events
+      </a>
+    </li>
+
+    <li>
+      <a href="{% url 'writeups:writeups'%}"
+         class="{% if request.resolver_match.url_name == 'achievements' %}active{% endif %}">
+         Writeups
+      </a>
+    </li>
+
+    <li>
+      <a href="{% url 'Blogs:blogs' %}"
+         class="{% if request.resolver_match.app_name == 'Blogs' %}active{% endif %}">
+         Blogs
+      </a>
+    </li>
+    <li>
+      <a href="{% url 'home:team' %}"
+         >
+         Team
+      </a>
+    </li>
+    <li>
+      <a href="/dojo/"
+         class="{% if '/dojo/' in request.path %}active{% endif %}">
+         Sentinels Dojo
+      </a>
+    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>

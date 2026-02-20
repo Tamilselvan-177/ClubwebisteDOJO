@@ -1,0 +1,479 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CYBER SENTINALS - CTF Platform{% endblock %}</title>
+    
+    <!-- Favicon: Always use static path -->
+    <link rel="icon" type="image/x-icon" href="{% static 'images/logo.ico' %}">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=JetBrains+Mono:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS with custom config -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        border: "hsl(0 0% 20%)",
+                        input: "hsl(0 0% 20%)",
+                        ring: "hsl(195 100% 42%)",  // Blue ring (matching club's cyan)
+                        background: "hsl(0 0% 8%)",  // Dark grey background
+                        foreground: "hsl(0 0% 90%)",
+                        primary: {
+                            DEFAULT: "hsl(195 100% 42%)",  // Blue/cyan primary (matching club)
+                            foreground: "hsl(0 0% 100%)",
+                        },
+                        secondary: {
+                            DEFAULT: "hsl(210 20% 40%)",  // Grey secondary
+                            foreground: "hsl(0 0% 100%)",
+                        },
+                        muted: {
+                            DEFAULT: "hsl(0 0% 15%)",
+                            foreground: "hsl(0 0% 60%)",
+                        },
+                        accent: {
+                            DEFAULT: "hsl(195 100% 50%)",  // Bright cyan accent
+                            foreground: "hsl(0 0% 100%)",
+                        },
+                        card: {
+                            DEFAULT: "hsl(0 0% 10%)",
+                            foreground: "hsl(0 0% 90%)",
+                        },
+                    },
+                    fontFamily: {
+                        display: ['Creepster', 'cursive'],
+                        tech: ['JetBrains Mono', 'monospace'],
+                        mono: ['Share Tech Mono', 'monospace'],
+                        jetbrains: ['JetBrains Mono', 'monospace'],
+                    },
+                },
+            },
+        }
+    </script>
+    
+    <!-- Custom CSS (cache-busted) -->
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=2">
+    
+    <!-- Lucide Icons (using CDN as fallback) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-background text-foreground">
+    {% include 'components/navbar.html' %}
+    
+    <!-- Global Toast Container -->
+    <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-3"></div>
+
+    <!-- Popup Notifications Container (Center) -->
+    <div id="popup-notifications-container" class="fixed inset-0 z-[70] flex items-center justify-center pointer-events-none"></div>
+
+    <main class="min-h-screen pt-20">
+        {% block content %}{% endblock %}
+    </main>
+    
+    {% include 'components/footer.html' %}
+    
+    <!-- Custom JavaScript -->
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Popup notification queue system
+        let popupQueue = [];
+        let popupActive = false;
+
+        // Red-themed toast helper
+        function showToast(message, options = {}) {
+            const {
+                title = '',
+                type = 'info', // info | success | error | warning
+                duration = 8000  // Increased from 4000ms to 8000ms (8 seconds)
+            } = options;
+
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const wrapper = document.createElement('div');
+            const base = 'relative w-80 bg-[#190707]/95 border rounded-lg shadow-xl shadow-red-900/40 p-4 text-foreground';
+            const typeClasses = {
+                info: 'border-red-700/60',
+                success: 'border-emerald-600/60',
+                error: 'border-red-700',
+                warning: 'border-amber-600/60'
+            };
+            wrapper.className = `${base} ${typeClasses[type] || typeClasses.info}`;
+
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'absolute top-2 right-2 text-red-300 hover:text-white';
+            closeBtn.innerHTML = '&times;';
+            closeBtn.onclick = () => {
+                if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
+            };
+
+            const titleEl = document.createElement('div');
+            if (title) {
+                titleEl.className = 'text-sm font-semibold text-red-200 mb-1';
+                titleEl.textContent = title;
+            }
+
+            const msgEl = document.createElement('div');
+            msgEl.className = 'text-sm text-red-100/80';
+            msgEl.textContent = message;
+
+            wrapper.appendChild(closeBtn);
+            if (title) wrapper.appendChild(titleEl);
+            wrapper.appendChild(msgEl);
+
+            container.appendChild(wrapper);
+
+            if (duration && duration > 0) {
+                setTimeout(() => {
+                    if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
+                }, duration);
+            }
+        }
+
+        // Read cookie helper (for CSRF)
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return '';
+        }
+
+        // Red-themed confirmation modal (Promise-based)
+        function showConfirm({ title = 'Confirm', message = '', confirmText = 'Confirm', cancelText = 'Cancel', type = 'warning' } = {}) {
+            return new Promise((resolve) => {
+                const overlay = document.createElement('div');
+                overlay.className = 'fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center';
+
+                const card = document.createElement('div');
+                const base = 'w-[28rem] bg-[#190707]/95 border rounded-lg shadow-2xl shadow-red-900/40 p-5';
+                const typeBorder = type === 'error' ? 'border-red-700' : type === 'success' ? 'border-emerald-600/60' : 'border-amber-600/60';
+                card.className = `${base} ${typeBorder}`;
+
+                const header = document.createElement('div');
+                header.className = 'text-lg font-semibold text-red-200 mb-2';
+                header.textContent = title;
+
+                const body = document.createElement('div');
+                body.className = 'text-sm text-red-100/80 mb-4';
+                body.textContent = message;
+
+                const actions = document.createElement('div');
+                actions.className = 'flex justify-end gap-3';
+
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'px-4 py-2 bg-gray-800 border border-gray-700 rounded text-gray-200 hover:bg-gray-700';
+                cancelBtn.textContent = cancelText;
+                cancelBtn.onclick = () => {
+                    document.body.removeChild(overlay);
+                    resolve(false);
+                };
+
+                const confirmBtn = document.createElement('button');
+                confirmBtn.className = 'px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded border border-red-500/60 shadow-sm shadow-red-900/30';
+                confirmBtn.textContent = confirmText;
+                confirmBtn.onclick = () => {
+                    document.body.removeChild(overlay);
+                    resolve(true);
+                };
+
+                actions.appendChild(cancelBtn);
+                actions.appendChild(confirmBtn);
+
+                card.appendChild(header);
+                card.appendChild(body);
+                card.appendChild(actions);
+
+                overlay.appendChild(card);
+                document.body.appendChild(overlay);
+
+                // Close on Escape
+                const onKey = (e) => {
+                    if (e.key === 'Escape') {
+                        document.body.removeChild(overlay);
+                        document.removeEventListener('keydown', onKey);
+                        resolve(false);
+                    }
+                };
+                document.addEventListener('keydown', onKey);
+            });
+        }
+
+        // Popup notification system - fetch and display on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            if (!document.body.classList.contains('popup-notifs-loaded')) {
+                await loadAndShowPopupNotifications();
+                document.body.classList.add('popup-notifs-loaded');
+            }
+        });
+
+        async function loadAndShowPopupNotifications() {
+            try {
+                const response = await fetch('/dojo/api/notifications/popup_notifications/', {
+                    credentials: 'include'
+                });
+                if (!response.ok) return;
+                
+                const data = await response.json();
+                if (!data.results || data.results.length === 0) return;
+                
+                // Push all notifications into queue
+                popupQueue.push(...data.results);
+                
+                // Start showing if none active
+                showNextPopup();
+            } catch (error) {
+                console.error('Error loading popup notifications:', error);
+            }
+        }
+
+        function showNextPopup() {
+            if (popupActive) return;
+            if (popupQueue.length === 0) return;
+
+            popupActive = true;
+            const nextNotification = popupQueue.shift();
+            showPopupNotification(nextNotification);
+        }
+
+        function showPopupNotification(notification) {
+            const container = document.getElementById('popup-notifications-container');
+            if (!container) return;
+
+            // Determine card styling based on notification type
+            const notifConfig = {
+                'challenge_release': {
+                    icon: '🆕',
+                    iconBg: 'bg-red-500/20',
+                    titleColor: 'text-red-300',
+                    buttonBg: 'bg-red-600 hover:bg-red-500',
+                    badgeBg: 'bg-red-500/20 text-red-300 border-red-500/30'
+                },
+                'hint': {
+                    icon: '💡',
+                    iconBg: 'bg-yellow-500/20',
+                    titleColor: 'text-yellow-300',
+                    buttonBg: 'bg-yellow-600 hover:bg-yellow-500',
+                    badgeBg: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30'
+                }
+            };
+
+            const config = notifConfig[notification.notification_type] || notifConfig['challenge_release'];
+
+            const card = document.createElement('div');
+            card.className = 'w-full max-w-md bg-gray-900/95 backdrop-blur-xl border border-red-500/30 rounded-2xl shadow-2xl overflow-hidden popup-enter pointer-events-auto';
+
+            // Header
+            const header = document.createElement('div');
+            header.className = 'px-6 pt-6 pb-4';
+
+            const headerTop = document.createElement('div');
+            headerTop.className = 'flex items-start justify-between mb-4';
+
+            const titleWrapper = document.createElement('div');
+            titleWrapper.className = 'flex items-start gap-3 flex-1';
+
+            const iconWrapper = document.createElement('div');
+            iconWrapper.className = `w-12 h-12 rounded-full ${config.iconBg} flex items-center justify-center text-2xl flex-shrink-0`;
+            iconWrapper.textContent = config.icon;
+
+            const titleEl = document.createElement('div');
+            titleEl.className = 'flex-1';
+            
+            const titleText = document.createElement('h3');
+            titleText.className = `text-lg font-bold ${config.titleColor} mb-1`;
+            titleText.textContent = notification.title;
+            titleEl.appendChild(titleText);
+
+            const subtitleText = document.createElement('p');
+            subtitleText.className = 'text-xs text-gray-400';
+            subtitleText.textContent = new Date(notification.created_at).toLocaleString();
+            titleEl.appendChild(subtitleText);
+
+            titleWrapper.appendChild(iconWrapper);
+            titleWrapper.appendChild(titleEl);
+
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'text-gray-400 hover:text-white transition p-1 hover:bg-white/10 rounded';
+            closeBtn.innerHTML = '✕';
+            closeBtn.onclick = () => dismissPopupNotification(notification.id, card);
+
+            headerTop.appendChild(titleWrapper);
+            headerTop.appendChild(closeBtn);
+            header.appendChild(headerTop);
+
+            // Body
+            const body = document.createElement('div');
+            body.className = 'px-6 py-4';
+
+            // Message
+            const messageEl = document.createElement('p');
+            messageEl.className = 'text-sm text-gray-200 mb-4 leading-relaxed';
+            messageEl.textContent = notification.message;
+            body.appendChild(messageEl);
+
+            // Details section (if available)
+            if (notification.extra_data) {
+                const data = notification.extra_data;
+                const details = document.createElement('div');
+                details.className = 'flex flex-wrap gap-2';
+
+                if (data.difficulty) {
+                    const diffItem = document.createElement('div');
+                    diffItem.className = `${config.badgeBg} px-3 py-1.5 rounded-lg text-xs font-semibold border`;
+                    diffItem.textContent = `📊 ${data.difficulty}`;
+                    details.appendChild(diffItem);
+                }
+
+                if (data.points) {
+                    const pointsItem = document.createElement('div');
+                    pointsItem.className = `${config.badgeBg} px-3 py-1.5 rounded-lg text-xs font-semibold border`;
+                    pointsItem.textContent = `⭐ ${data.points} pts`;
+                    details.appendChild(pointsItem);
+                }
+
+                if (data.category) {
+                    const catItem = document.createElement('div');
+                    catItem.className = `${config.badgeBg} px-3 py-1.5 rounded-lg text-xs font-semibold border`;
+                    catItem.textContent = `📁 ${data.category}`;
+                    details.appendChild(catItem);
+                }
+
+                if (data.cost) {
+                    const costItem = document.createElement('div');
+                    costItem.className = `${config.badgeBg} px-3 py-1.5 rounded-lg text-xs font-semibold border`;
+                    costItem.textContent = `💰 ${data.cost} pts`;
+                    details.appendChild(costItem);
+                }
+
+                body.appendChild(details);
+            }
+
+            card.appendChild(header);
+            card.appendChild(body);
+
+            // Footer with action buttons
+            const footer = document.createElement('div');
+            footer.className = 'px-6 py-4 bg-black/20 flex gap-3';
+
+            const dismissBtn = document.createElement('button');
+            dismissBtn.className = `flex-1 px-4 py-2.5 ${config.buttonBg} text-white rounded-lg font-semibold transition-all shadow-lg text-sm hover:scale-105`;
+            dismissBtn.textContent = 'Got It';
+            dismissBtn.onclick = () => dismissPopupNotification(notification.id, card);
+
+            const actionBtn = document.createElement('button');
+            actionBtn.className = 'flex-1 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-semibold transition-all text-sm hover:scale-105';
+            actionBtn.textContent = 'View';
+            actionBtn.onclick = () => {
+                if (notification.action_url) {
+                    window.location.href = notification.action_url;
+                }
+                dismissPopupNotification(notification.id, card);
+            };
+
+            footer.appendChild(dismissBtn);
+            if (notification.action_url) {
+                footer.appendChild(actionBtn);
+            }
+
+            card.appendChild(footer);
+
+            // Progress bar at bottom
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'h-1 bg-red-500/30';
+            const progressBar = document.createElement('div');
+            progressBar.className = 'h-full bg-red-500 progress-bar';
+            progressContainer.appendChild(progressBar);
+            card.appendChild(progressContainer);
+
+            container.appendChild(card);
+
+            // Auto-dismiss after 10 seconds if not manually dismissed
+            setTimeout(() => {
+                if (card.parentNode) {
+                    dismissPopupNotification(notification.id, card);
+                }
+            }, 10000);
+        }
+
+        async function dismissPopupNotification(notificationId, cardElement) {
+            try {
+                // Mark as dismissed in backend
+                await fetch(`/dojo/api/notifications/${notificationId}/dismiss_popup/`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json',
+                    }
+                });
+            } catch (error) {
+                console.error('Error dismissing notification:', error);
+            }
+
+            if (cardElement && cardElement.parentNode) {
+                // Add exit animation
+                cardElement.classList.add('popup-exit');
+                setTimeout(() => {
+                    if (cardElement.parentNode) {
+                        cardElement.parentNode.removeChild(cardElement);
+                    }
+                    popupActive = false;
+                    showNextPopup(); // Show next popup in queue
+                }, 250);
+            } else {
+                popupActive = false;
+                showNextPopup(); // Show next popup in queue
+            }
+        }
+    </script>
+    <style>
+        @keyframes slideInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        @keyframes slideOut {
+            to {
+                opacity: 0;
+                transform: scale(0.95) translateY(-10px);
+            }
+        }
+        
+        @keyframes progressBar {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        
+        .popup-enter {
+            animation: slideInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .popup-exit {
+            animation: slideOut 0.25s ease-in;
+        }
+        
+        .progress-bar {
+            animation: progressBar 10s linear;
+        }
+    </style>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+

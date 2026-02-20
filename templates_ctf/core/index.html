@@ -1,0 +1,193 @@
+{% extends 'ctf_base.html' %}
+{% load static %}
+
+{% block title %}Home - CYBER SENTINELS{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-void pt-16">
+    <div class="absolute inset-0 bg-glow animate-glow-flicker"></div>
+    <div class="absolute inset-0 retro-grid opacity-[0.08] animate-grid-scroll"></div>
+    <div class="absolute inset-0 bg-noise pointer-events-none"></div>
+
+    <!-- Content -->
+    <div class="relative z-10 container mx-auto px-4 text-center">
+        <p class="font-tech text-sm md:text-base uppercase tracking-[0.3em] text-primary mb-6 animate-pulse">
+            &lt;/ Enter The Upside Down /&gt;
+        </p>
+
+        <h1 class="font-display text-6xl md:text-8xl lg:text-9xl text-primary animate-flicker mb-6">
+            0xTi
+        </h1>
+
+        <h2 class="font-tech text-xl md:text-2xl text-foreground/80 mb-4">
+            CAPTURE THE FLAG
+        </h2>
+
+        <p class="font-mono text-muted-foreground max-w-2xl mx-auto mb-10 text-sm md:text-base">
+            The gate has opened. Strange signals emerge from the void.
+            Do you have what it takes to decode the secrets of the Upside Down?
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            {% if user.is_authenticated %}
+                <a href="/dojo/dashboard/" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-base font-bold px-10 h-12 bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-[0_0_30px_hsl(195_100%_50%/0.5)] hover:shadow-[0_0_40px_hsl(195_100%_50%/0.7),0_0_80px_hsl(195_100%_60%/0.5)] hover:scale-105 transition-all duration-300 font-tech uppercase tracking-wider group">
+                    <i data-lucide="terminal" class="w-5 h-5 group-hover:animate-glitch"></i>
+                    Go to Dashboard
+                </a>
+            {% else %}
+                <a href="{% url 'accounts:register' %}" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-base font-bold px-10 h-12 bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-[0_0_30px_hsl(195_100%_50%/0.5)] hover:shadow-[0_0_40px_hsl(195_100%_50%/0.7),0_0_80px_hsl(195_100%_60%/0.5)] hover:scale-105 transition-all duration-300 font-tech uppercase tracking-wider group">
+                    <i data-lucide="terminal" class="w-5 h-5 group-hover:animate-glitch"></i>
+                    Register
+                </a>
+            {% endif %}
+
+            <a href="#challenges" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-base font-medium px-10 h-12 bg-transparent border-2 border-primary text-primary hover:bg-primary/10 hover:shadow-[0_0_20px_hsl(195_100%_50%/0.5),0_0_40px_hsl(195_100%_50%/0.3)] transition-all duration-300 font-tech uppercase tracking-wider">
+                <i data-lucide="zap" class="w-5 h-5"></i>
+                View Challenges
+            </a>
+        </div>
+
+        <!-- Stats -->
+        <div class="mt-16 grid grid-cols-3 gap-8 max-w-lg mx-auto">
+            <div class="text-center">
+                <div class="font-display text-3xl md:text-4xl text-primary text-glow-sm">
+                    50+
+                </div>
+                <div class="font-tech text-xs uppercase tracking-wider text-muted-foreground">
+                    Challenges
+                </div>
+            </div>
+            <div class="text-center">
+                <div class="font-display text-3xl md:text-4xl text-primary text-glow-sm">
+                    24
+                </div>
+                <div class="font-tech text-xs uppercase tracking-wider text-muted-foreground">
+                    Hours
+                </div>
+            </div>
+            <div class="text-center">
+                <div class="font-display text-3xl md:text-4xl text-primary text-glow-sm">
+                    ₹200k+
+                </div>
+                <div class="font-tech text-xs uppercase tracking-wider text-muted-foreground">
+                    Prizes
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom fade -->
+    <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent"></div>
+</section>
+
+<!-- Stats Section -->
+<section class="relative py-24 overflow-hidden">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-primary/10 via-transparent to-transparent rounded-full blur-3xl"></div>
+
+    <div class="container mx-auto px-4 relative z-10">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="group text-center p-8 bg-card/30 border border-border rounded-lg backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:border-glow">
+                <div class="inline-flex p-4 bg-primary/10 rounded-full border border-primary/20 mb-6 group-hover:animate-pulse-glow">
+                    <i data-lucide="users" class="w-8 h-8 text-primary"></i>
+                </div>
+                <div class="font-display text-4xl md:text-5xl text-primary text-glow-sm mb-2">
+                    100+
+                </div>
+                <div class="font-tech text-sm uppercase tracking-wider text-foreground mb-1">
+                    Active Hackers
+                </div>
+                <div class="font-mono text-xs text-muted-foreground">
+                    From Across the Country
+                </div>
+            </div>
+            <div class="group text-center p-8 bg-card/30 border border-border rounded-lg backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:border-glow">
+                <div class="inline-flex p-4 bg-primary/10 rounded-full border border-primary/20 mb-6 group-hover:animate-pulse-glow">
+                    <i data-lucide="flag" class="w-8 h-8 text-primary"></i>
+                </div>
+                <div class="font-display text-4xl md:text-5xl text-primary text-glow-sm mb-2">
+                    50+
+                </div>
+                <div class="font-tech text-sm uppercase tracking-wider text-foreground mb-1">
+                    Challenges
+                </div>
+                <div class="font-mono text-xs text-muted-foreground">
+                    Across 8 categories
+                </div>
+            </div>
+            <div class="group text-center p-8 bg-card/30 border border-border rounded-lg backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:border-glow">
+                <div class="inline-flex p-4 bg-primary/10 rounded-full border border-primary/20 mb-6 group-hover:animate-pulse-glow">
+                    <i data-lucide="clock" class="w-8 h-8 text-primary"></i>
+                </div>
+                <div class="font-display text-4xl md:text-5xl text-primary text-glow-sm mb-2">
+                    24h
+                </div>
+                <div class="font-tech text-sm uppercase tracking-wider text-foreground mb-1">
+                    Event Duration
+                </div>
+                <div class="font-mono text-xs text-muted-foreground">
+                    Non-stop hacking
+                </div>
+            </div>
+            <div class="group text-center p-8 bg-card/30 border border-border rounded-lg backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:border-glow">
+                <div class="inline-flex p-4 bg-primary/10 rounded-full border border-primary/20 mb-6 group-hover:animate-pulse-glow">
+                    <i data-lucide="zap" class="w-8 h-8 text-primary"></i>
+                </div>
+                <div class="font-display text-4xl md:text-5xl text-primary text-glow-sm mb-2">
+                    ₹200K
+                </div>
+                <div class="font-tech text-sm uppercase tracking-wider text-foreground mb-1">
+                    Prize Pool
+                </div>
+                <div class="font-mono text-xs text-muted-foreground">
+                    For top performers
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="relative py-32 overflow-hidden bg-void">
+    <div class="absolute top-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-background via-card to-background"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-radial from-primary/30 via-primary/10 to-transparent rounded-full blur-3xl animate-pulse"></div>
+    <div class="container mx-auto px-4 relative z-10 text-center">
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-full mb-8">
+            <i data-lucide="terminal" class="w-4 h-4 text-primary"></i>
+            <span class="font-mono text-sm text-muted-foreground">
+                root@upside-down:~$
+            </span>
+            <span class="font-mono text-sm text-primary animate-pulse">
+                ./join_the_hunt
+            </span>
+        </div>
+        <h2 class="font-display text-5xl md:text-7xl text-foreground mb-6">
+            READY TO <span class="text-primary text-glow">ENTER</span>?
+        </h2>
+        <p class="font-mono text-muted-foreground max-w-xl mx-auto mb-10 text-lg">
+            The gate opens soon. Register now and prepare for the most
+            thrilling CTF experience of the year.
+        </p>
+        <div class="flex justify-center gap-6 mb-12" id="countdown-container">
+            <!-- Countdown will be inserted here by JavaScript -->
+        </div>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a href="{% url 'accounts:register' %}" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-base font-bold px-10 h-12 bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-[0_0_30px_hsl(0_100%_50%/0.5)] hover:shadow-[0_0_40px_hsl(0_100%_50%/0.7),0_0_80px_hsl(340_100%_50%/0.5)] hover:scale-105 transition-all duration-300 font-tech uppercase tracking-wider group">
+                Register Now
+                <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+            </a>
+        </div>
+    </div>
+    <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent"></div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize countdown (target: 2026-01-29 10:00:00)
+    const targetTime = new Date("2026-01-29T10:00:00").getTime();
+    startCountdown(targetTime, 'countdown-container');
+</script>
+{% endblock %}
+

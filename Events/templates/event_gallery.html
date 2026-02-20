@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ object.title }} | Gallery{% endblock %}
+
+{% block content %}
+
+<div class="event-gallery-page">
+
+  <div class="gallery-hero">
+    <h1>{{ object.title }}</h1>
+  </div>
+
+  <div class="gallery-grid">
+    {% for image in object.images.all %}
+      <div class="gallery-item">
+        <img src="{{ image.image.url }}" alt="Event Image">
+      </div>
+    {% empty %}
+      <p class="no-images">No images uploaded for this event yet.</p>
+    {% endfor %}
+  </div>
+
+</div>
+
+{% endblock %}

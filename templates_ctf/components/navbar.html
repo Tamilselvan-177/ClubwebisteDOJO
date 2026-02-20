@@ -1,0 +1,647 @@
+{% load static %}
+<nav class="fixed top-0 left-0 right-0 z-50 bg-black border-b border-blue-700/50 shadow-lg shadow-blue-900/25">
+    <div class="w-full px-3 sm:px-4 lg:px-6">
+        <div class="flex items-center justify-between h-14 sm:h-16">
+            <!-- Logo -->
+            <a href="/dojo/" class="flex items-center gap-2 group flex-shrink-0">
+
+<img src="{% static 'images/logo.jpeg' %}"
+
+    alt="logo"
+    class="h-8 w-8 sm:h-9 sm:w-9 object-contain flex-shrink-0 rounded-full bg-transparent mix-blend-lighten">
+
+
+                <span class="font-tech text-xs sm:text-sm md:text-base text-primary text-glow-sm whitespace-nowrap">
+                    CYBER
+                </span>
+                <span class="font-tech text-xs sm:text-sm md:text-base text-foreground whitespace-nowrap">SENTINELS</span>
+            </a>
+
+            <!-- Desktop Navigation -->
+            <div class="hidden lg:flex items-center gap-4 xl:gap-6">
+                <a href="/dojo/challenges/" class="font-tech text-xs sm:text-sm uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors">
+                    Challenges
+                </a>
+                <a href="/dojo/scoreboard/" class="font-tech text-xs sm:text-sm uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors">
+                    Scoreboard
+                </a>
+                <a href="/dojo/rules" class="font-tech text-xs sm:text-sm uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors">
+                    Rules
+                </a>
+            </div>
+
+            <!-- Desktop Right Section -->
+            <div class="hidden lg:flex items-center gap-2 xl:gap-3">
+                {% if user.is_authenticated %}
+                    <!-- Notification Bell -->
+                    <div class="relative notification-bell-container">
+                        <button type="button" id="notification-bell" class="relative p-2 rounded-lg text-muted-foreground hover:text-primary transition-colors group cursor-pointer" title="Notifications">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <span id="notification-badge" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full hidden"></span>
+                        </button>
+                        
+                        <!-- Notification Dropdown -->
+                        <div id="notification-dropdown" class="absolute right-0 mt-2 w-64 sm:w-72 bg-gray-900 border border-gray-700 rounded-lg shadow-xl hidden z-40 max-h-96 overflow-y-auto">
+                            <div class="p-3 border-b border-gray-700 flex justify-between items-center sticky top-0 bg-gray-900">
+                                <h3 class="text-xs font-semibold text-gray-200">Notifications</h3>
+                                <button type="button" id="clear-notifications" class="text-xs text-gray-400 hover:text-gray-200 cursor-pointer">Clear</button>
+                            </div>
+                            <div id="notifications-list" class="divide-y divide-gray-700">
+                                <div class="p-3 text-center text-gray-400 text-xs">
+                                    No notifications yet
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="/dojo/dashboard/" class="font-tech text-xs sm:text-sm uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors">
+                        Dashboard
+                    </a>
+                    <a href="/dojo/teams/" class="font-tech text-xs sm:text-sm uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors">
+                        Teams
+                    </a>
+                    <a href="/dojo/profile/" class="font-tech text-xs sm:text-sm uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors">
+                        Profile
+                    </a>
+                    <a href="{% url 'accounts:logout' %}" class="font-tech text-xs sm:text-sm uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors">
+                        Logout
+                    </a>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="px-2 py-1 rounded-md font-tech text-xs uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors">
+                        Login
+                    </a>
+                    <a href="{% url 'accounts:register' %}" class="px-2 py-1 rounded-md bg-transparent border-2 border-primary text-primary hover:bg-primary/10 transition-all duration-300 font-tech text-xs uppercase tracking-wider">
+                        Register
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile/Tablet Right Section -->
+            <div class="lg:hidden flex items-center gap-2">
+                {% if user.is_authenticated %}
+                    <!-- Mobile Notification Bell -->
+                    <div class="relative notification-bell-container">
+                        <button type="button" id="notification-bell-mobile" class="relative p-1.5 rounded-lg text-muted-foreground hover:text-primary transition-colors cursor-pointer" title="Notifications">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <span id="notification-badge-mobile" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full hidden"></span>
+                        </button>
+                        
+                        <!-- Mobile Notification Dropdown -->
+                        <div id="notification-dropdown-mobile" class="absolute right-0 mt-2 w-56 bg-gray-900 border border-gray-700 rounded-lg shadow-xl hidden z-40 max-h-80 overflow-y-auto">
+                            <div class="p-2 border-b border-gray-700 flex justify-between items-center sticky top-0 bg-gray-900">
+                                <h3 class="text-xs font-semibold text-gray-200">Notifications</h3>
+                                <button type="button" id="clear-notifications-mobile" class="text-xs text-gray-400 hover:text-gray-200 cursor-pointer">Clear</button>
+                            </div>
+                            <div id="notifications-list-mobile" class="divide-y divide-gray-700">
+                                <div class="p-2 text-center text-gray-400 text-xs">
+                                    No notifications yet
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Hamburger Menu Button -->
+                <button id="mobile-menu-button" class="p-1.5 rounded-lg text-foreground hover:text-primary transition-colors" onclick="toggleMobileMenu()">
+                    <i data-lucide="menu" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden lg:hidden py-2 sm:py-3 border-t border-border max-h-[calc(100vh-56px)] overflow-y-auto">
+            <div class="flex flex-col gap-1 sm:gap-2">
+                <!-- Navigation Links -->
+                <a href="/dojo/challenges/" class="px-3 py-1.5 font-tech text-xs uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors rounded hover:bg-gray-900/50">
+                    Challenges
+                </a>
+                <a href="/dojo/scoreboard/" class="px-3 py-1.5 font-tech text-xs uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors rounded hover:bg-gray-900/50">
+                    Scoreboard
+                </a>
+                <a href="/dojo/rules" class="px-3 py-1.5 font-tech text-xs uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors rounded hover:bg-gray-900/50">
+                    Rules
+                </a>
+
+                {% if user.is_authenticated %}
+                    <div class="border-t border-gray-700 my-1.5 sm:my-2"></div>
+
+                    <a href="/dojo/dashboard/" class="px-3 py-1.5 font-tech text-xs uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors rounded hover:bg-gray-900/50">
+                        Dashboard
+                    </a>
+                    <a href="/dojo/teams/" class="px-3 py-1.5 font-tech text-xs uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors rounded hover:bg-gray-900/50">
+                        Teams
+                    </a>
+                    <a href="/dojo/profile/" class="px-3 py-1.5 font-tech text-xs uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors rounded hover:bg-gray-900/50">
+                        Profile
+                    </a>
+
+                    <div class="border-t border-gray-700 my-1.5 sm:my-2"></div>
+
+                    <a href="{% url 'accounts:logout' %}" class="px-3 py-1.5 font-tech text-xs uppercase tracking-wider text-primary border-2 border-primary rounded hover:bg-primary/10 transition-colors text-center">
+                        Logout
+                    </a>
+                {% else %}
+                    <div class="flex flex-col gap-1.5 pt-1.5 sm:pt-2">
+                        <a href="{% url 'accounts:login' %}" class="px-3 py-1.5 rounded font-tech text-xs uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors text-center border border-border">
+                            Login
+                        </a>
+                        <a href="{% url 'accounts:register' %}" class="px-3 py-1.5 rounded font-tech text-xs uppercase tracking-wider text-primary border-2 border-primary hover:bg-primary/10 transition-colors text-center">
+                            Register
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<script>
+function toggleMobileMenu() {
+    const menu = document.getElementById('mobile-menu');
+    const button = document.getElementById('mobile-menu-button');
+    menu.classList.toggle('hidden');
+    
+    // Toggle icon
+    if (menu.classList.contains('hidden')) {
+        button.innerHTML = '<i data-lucide="menu" class="w-5 h-5 sm:w-6 sm:h-6"></i>';
+    } else {
+        button.innerHTML = '<i data-lucide="x" class="w-5 h-5 sm:w-6 sm:h-6"></i>';
+    }
+    
+    // Update Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
+
+// Close mobile menu when clicking on a link
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileLinks = document.getElementById('mobile-menu')?.querySelectorAll('a');
+    if (mobileLinks) {
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                const menu = document.getElementById('mobile-menu');
+                if (menu && !menu.classList.contains('hidden')) {
+                    menu.classList.add('hidden');
+                    const button = document.getElementById('mobile-menu-button');
+                    button.innerHTML = '<i data-lucide="menu" class="w-5 h-5 sm:w-6 sm:h-6"></i>';
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                }
+            });
+        });
+    }
+});
+
+// Notification System
+const notificationManager = {
+    notifications: [],
+    maxNotifications: 10,
+    pollInterval: null,
+    lastFetch: 0,
+    soundPlayedIds: new Set(),  // Track which notifications had sound played
+    
+    // Persist soundPlayedIds to localStorage so sound doesn't replay on page navigation
+    saveSoundPlayedIds() {
+        try {
+            const ids = Array.from(this.soundPlayedIds);
+            localStorage.setItem('soundPlayedIds_ctf', JSON.stringify(ids));
+            console.log(`💾 Saved ${ids.length} sound IDs to localStorage`);
+        } catch (e) {
+            console.error('Failed to save sound played IDs:', e);
+        }
+    },
+
+    // Restore soundPlayedIds from localStorage on page load
+    loadSoundPlayedIds() {
+        try {
+            const stored = localStorage.getItem('soundPlayedIds_ctf');
+            if (stored) {
+                const ids = JSON.parse(stored);
+                this.soundPlayedIds = new Set(ids);
+                console.log(`📂 Restored ${ids.length} sound IDs from localStorage`);
+            } else {
+                this.soundPlayedIds = new Set();
+                console.log('📂 No stored sound IDs, starting fresh');
+            }
+        } catch (e) {
+            console.error('Failed to load sound played IDs:', e);
+            this.soundPlayedIds = new Set();
+        }
+    },
+    
+    init() {
+        console.log('🔔 Initializing notification manager...');
+        
+        // Load sound played IDs from localStorage (persists across page navigation)
+        this.loadSoundPlayedIds();
+        console.log(`✓ Loaded ${this.soundPlayedIds.size} previously played sounds`);
+        
+        // Setup event listeners
+        const bellBtn = document.getElementById('notification-bell');
+        if (bellBtn) {
+            console.log('✓ Found notification bell button');
+            bellBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🔔 Notification bell clicked');
+                this.toggleDropdown();
+            });
+        } else {
+            console.error('❌ Notification bell button not found');
+        }
+        
+        const clearBtn = document.getElementById('clear-notifications');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.clearAll();
+            });
+        }
+        
+        const mobileBtn = document.getElementById('mobile-notifications-btn');
+        if (mobileBtn) {
+            mobileBtn.addEventListener('click', () => this.toggleMobileNotifications());
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const container = document.querySelector('.notification-bell-container');
+            if (container && !container.contains(e.target)) {
+                this.closeDropdown();
+            }
+        });
+        
+        // Fetch from backend immediately (no localStorage)
+        this.fetchFromBackend();
+        // Poll every 10 seconds for new notifications
+        this.pollInterval = setInterval(() => this.fetchFromBackend(), 10000);
+        
+        console.log('✓ Notification manager initialized');
+    },
+    
+    async fetchFromBackend() {
+        try {
+            // Fetch ONLY unread notifications so cleared ones don't reappear
+            const response = await fetch('/dojo/api/notifications/?is_read=false', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.getCookie('csrftoken')
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                const backendNotifications = data.results || data || [];
+                
+                console.log(`📥 Fetched ${backendNotifications.length} notifications from backend`);
+                
+                // Track which backend IDs we've seen
+                let hasNewNotifications = false;
+                
+                // Convert backend notifications to local format and add new ones
+                backendNotifications.forEach(notif => {
+                    const localNotif = {
+                        id: `backend-${notif.id}`,
+                        title: notif.title,
+                        message: notif.title || notif.message,
+                        type: this.mapNotificationType(notif.notification_type),
+                        icon: this.mapNotificationIcon(notif.notification_type),
+                        timestamp: new Date(notif.created_at),
+                        read: notif.is_read,
+                        backendId: notif.id,
+                        soundUrl: notif.sound_url,
+                        soundDuration: notif.sound_duration,
+                        soundPlayed: notif.sound_played
+                    };
+                    
+                    // Only add if NOT already in local list (avoid duplicates)
+                    const existing = this.notifications.find(n => n.id === localNotif.id);
+                    // Also de-duplicate by same title and timestamp
+                    const sameTitleTime = this.notifications.find(n => n.title === localNotif.title && n.timestamp.getTime() === localNotif.timestamp.getTime());
+                    if (!existing && !sameTitleTime) {
+                        console.log(`  + NEW notification: ${localNotif.message}`);
+                        this.notifications.unshift(localNotif);
+                        hasNewNotifications = true;
+                        
+                        // Play sound ONLY if:
+                        // 1. Sound URL exists
+                        // 2. Notification is unread
+                        // 3. Sound hasn't been played yet (backend flag)
+                        // 4. Not already in soundPlayedIds (client-side dedup)
+                        if (localNotif.soundUrl && !notif.is_read && !notif.sound_played && !this.soundPlayedIds.has(localNotif.id)) {
+                            console.log(`  🔊 Playing sound (duration: ${localNotif.soundDuration}s): ${localNotif.soundUrl}`);
+                            this.soundPlayedIds.add(localNotif.id);  // Mark as played locally
+                            this.saveSoundPlayedIds();  // Persist to localStorage
+                            this.playNotificationSound(localNotif.soundUrl, localNotif.soundDuration);
+                            // Backend will mark sound_played=true after sound is triggered
+                        }
+                    } else {
+                        console.log(`  ✓ Already have: ${localNotif.message} (keeping it)`);
+                    }
+                });
+                
+                // Keep only latest maxNotifications
+                if (this.notifications.length > this.maxNotifications) {
+                    console.log(`📊 Limiting to ${this.maxNotifications} most recent notifications`);
+                    this.notifications = this.notifications.slice(0, this.maxNotifications);
+                }
+                
+                console.log(`📊 Total notifications stored: ${this.notifications.length}`);
+                
+                // Only re-render if something changed
+                if (hasNewNotifications) {
+                    this.render();
+                    this.updateBadge();
+                }
+            } else {
+                console.error('❌ API response error:', response.status);
+            }
+        } catch (error) {
+            console.error('❌ Could not fetch backend notifications:', error);
+        }
+    },
+    
+    playNotificationSound(soundUrl, durationSeconds) {
+        if (!soundUrl) {
+            this.playFallbackSound(durationSeconds || 0.3);
+            return;
+        }
+        
+        try {
+            const audio = new Audio(soundUrl);
+            audio.volume = 0.5;
+            
+            // Set max duration limit if specified
+            if (durationSeconds) {
+                setTimeout(() => {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }, durationSeconds * 1000);
+            }
+            
+            audio.play().catch(err => {
+                console.log('Could not play sound, using fallback:', err);
+                this.playFallbackSound(durationSeconds || 0.3);
+            });
+        } catch (error) {
+            console.log('Audio playback error:', error);
+            this.playFallbackSound(durationSeconds || 0.3);
+        }
+    },
+    
+    playFallbackSound(durationSeconds) {
+        durationSeconds = durationSeconds || 0.3;
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const duration = durationSeconds;
+            const frequency = 800;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        } catch (error) {
+            console.log('Web Audio API not available:', error);
+        }
+    },
+    
+    mapNotificationType(type) {
+        const mapping = {
+            'challenge': 'info',
+            'first_blood': 'success',
+            'hint': 'info',
+            'renewal': 'success',
+            'warning': 'warning',
+            'error': 'error'
+        };
+        return mapping[type] || 'info';
+    },
+    
+    mapNotificationIcon(type) {
+        const mapping = {
+            'challenge': '🎯',
+            'first_blood': '🩸',
+            'hint': '💡',
+            'renewal': '🔄',
+            'warning': '⚠️',
+            'error': '❌'
+        };
+        return mapping[type] || '💬';
+    },
+    
+    getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    },
+    
+    remove(id) {
+        this.notifications = this.notifications.filter(n => n.id !== id);
+        this.render();
+        this.updateBadge();
+    },
+    
+    async clearAll() {
+        try {
+            const csrf = this.getCookie('csrftoken');
+            const resp = await fetch('/dojo/api/notifications/mark_all_read/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrf
+                }
+            });
+            if (!resp.ok) {
+                console.error('❌ Failed to mark all notifications read on server');
+            } else {
+                console.log('✓ Marked all notifications as read on server');
+            }
+        } catch (e) {
+            console.error('❌ Error calling mark_all_read:', e);
+        }
+        // Clear locally regardless, backend is source of truth
+        this.notifications = [];
+        this.render();
+        this.updateBadge();
+    },
+    
+    async markAsRead(id) {
+        const notification = this.notifications.find(n => n.id === id);
+        if (!notification) return;
+        const csrf = this.getCookie('csrftoken');
+        // Find possible duplicates with same title and timestamp
+        const duplicates = this.notifications.filter(n => n.title === notification.title && n.timestamp.getTime() === notification.timestamp.getTime());
+        try {
+            for (const n of duplicates) {
+                const backendId = n.backendId || (n.id.startsWith('backend-') ? n.id.replace('backend-', '') : null);
+                if (backendId) {
+                    const resp = await fetch(`/dojo/api/notifications/${backendId}/mark_read/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrf
+                        }
+                    });
+                    if (!resp.ok) {
+                        console.error(`❌ Failed to mark notification ${backendId} read on server`);
+                    } else {
+                        console.log(`✓ Marked notification ${backendId} as read on server`);
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('❌ Error marking notification read:', e);
+        }
+        // Remove duplicates from local list
+        this.notifications = this.notifications.filter(n => !(n.title === notification.title && n.timestamp.getTime() === notification.timestamp.getTime()));
+        this.render();
+        this.updateBadge();
+    },
+    
+    toggleDropdown() {
+        const dropdown = document.getElementById('notification-dropdown');
+        if (dropdown) {
+            const isHidden = dropdown.classList.contains('hidden');
+            if (isHidden) {
+                console.log('📂 Opening notifications dropdown');
+                dropdown.classList.remove('hidden');
+            } else {
+                console.log('📁 Closing notifications dropdown');
+                dropdown.classList.add('hidden');
+            }
+        } else {
+            console.error('❌ Notification dropdown element not found');
+        }
+    },
+    
+    closeDropdown() {
+        const dropdown = document.getElementById('notification-dropdown');
+        if (dropdown) {
+            dropdown.classList.add('hidden');
+        }
+    },
+    
+    toggleMobileNotifications() {
+        const list = document.getElementById('mobile-notifications-list');
+        if (list) {
+            list.classList.toggle('hidden');
+        }
+    },
+    
+    updateBadge() {
+        const unreadCount = this.notifications.filter(n => !n.read).length;
+        const badge = document.getElementById('notification-badge');
+        const mobileBadge = document.getElementById('mobile-notification-badge');
+        
+        if (unreadCount > 0) {
+            badge?.classList.remove('hidden');
+            mobileBadge?.classList.remove('hidden');
+        } else {
+            badge?.classList.add('hidden');
+            mobileBadge?.classList.add('hidden');
+        }
+    },
+    
+    render() {
+        const list = document.getElementById('notifications-list');
+        const mobileList = document.getElementById('mobile-notifications-list');
+        
+        console.log(`🎨 Rendering ${this.notifications.length} notifications`);
+        
+        if (!list) {
+            console.error('❌ notifications-list element not found');
+            return;
+        }
+        
+        if (this.notifications.length === 0) {
+            console.log('  → Empty notifications list');
+            if (list) {
+                list.innerHTML = '<div class="p-4 text-center text-gray-400 text-sm">No notifications yet</div>';
+            }
+            if (mobileList) {
+                mobileList.innerHTML = '<div class="p-2 text-center text-gray-400 text-xs">No notifications yet</div>';
+            }
+            return;
+        }
+        
+        const html = this.notifications.map(notif => {
+            const colors = {
+                'success': 'bg-green-500/10 border-l-4 border-green-500',
+                'error': 'bg-red-500/10 border-l-4 border-red-500',
+                'warning': 'bg-yellow-500/10 border-l-4 border-yellow-500',
+                'info': 'bg-blue-500/10 border-l-4 border-blue-500'
+            };
+            
+            const timeAgo = this.getTimeAgo(notif.timestamp);
+            const notifText = notif.message || notif.title || 'Notification';
+            
+            return `
+                <div class="p-3 ${colors[notif.type] || colors.info} hover:bg-opacity-75 transition cursor-pointer" onclick="notificationManager.markAsRead('${notif.id}')">
+                    <div class="flex items-start gap-3">
+                        <span class="text-lg">${notif.icon}</span>
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-200">${notifText}</p>
+                            <p class="text-xs text-gray-500 mt-1">${timeAgo}</p>
+                        </div>
+                        <button onclick="notificationManager.remove('${notif.id}'); event.stopPropagation();" class="text-gray-500 hover:text-gray-300 text-xs">✕</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        if (list) {
+            list.innerHTML = html;
+            console.log('  ✓ Rendered to desktop list');
+        }
+        if (mobileList) {
+            mobileList.innerHTML = html;
+            console.log('  ✓ Rendered to mobile list');
+        }
+    },
+    
+    getTimeAgo(date) {
+        const seconds = Math.floor((new Date() - date) / 1000);
+        
+        if (seconds < 60) return 'just now';
+        if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+        return `${Math.floor(seconds / 86400)}d ago`;
+    },
+};
+
+// Initialize when DOM is ready or immediately if already ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        notificationManager.init();
+    });
+} else {
+    // DOM is already loaded
+    notificationManager.init();
+}
+</script>
+

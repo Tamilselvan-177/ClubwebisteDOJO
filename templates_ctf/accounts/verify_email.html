@@ -1,0 +1,209 @@
+{% extends 'ctf_base.html' %}
+{% load static %}
+
+{% block title %}Verify Email - CTF Platform{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-[radial-gradient(circle_at_top,_#1a0000,_#000_70%)] px-4 bg-void pt-16">
+    <div class="w-full max-w-md bg-black/90 border border-red-600/40 rounded-2xl p-10 shadow-[0_0_25px_rgba(255,0,0,0.35)]">
+        <h1 class="text-3xl text-center text-red-600 font-extrabold tracking-widest mb-2 drop-shadow-[0_0_12px_rgba(255,0,0,0.9)]">
+            ✓ VERIFY EMAIL
+        </h1>
+        <p class="text-center text-gray-400 text-sm mb-6">Complete your registration by verifying your email</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-900/50 border border-red-600 text-red-200{% else %}bg-green-900/50 border border-green-600 text-green-200{% endif %} text-sm">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div id="success-message" class="hidden mb-4 p-4 rounded-lg bg-green-900/50 border border-green-600 text-green-200 text-sm">
+            ✓ Email verified successfully! You can now <a href="{% url 'accounts:login' %}" class="underline font-bold">login</a>.
+        </div>
+
+        <div id="error-message" class="hidden mb-4 p-4 rounded-lg bg-red-900/50 border border-red-600 text-red-200 text-sm">
+            Invalid or expired verification token. <a href="#" class="underline font-bold" onclick="showResendForm()">Resend verification email</a>
+        </div>
+
+        <!-- Verification Form -->
+        <div id="verification-form" class="flex flex-col gap-4">
+            <input
+                type="email"
+                id="email-input"
+                placeholder="Your Email"
+                required
+                class="px-4 py-3 rounded-lg bg-zinc-900 text-white text-sm border border-white/15 outline-none placeholder-gray-500 focus:border-red-600 focus:shadow-[0_0_14px_rgba(255,0,0,0.7)] transition"
+                value="{{ email|default:'' }}"
+            />
+            <input
+                type="text"
+                id="token-input"
+                placeholder="Verification Token (from email link)"
+                required
+                class="px-4 py-3 rounded-lg bg-zinc-900 text-white text-sm border border-white/15 outline-none placeholder-gray-500 focus:border-red-600 focus:shadow-[0_0_14px_rgba(255,0,0,0.7)] transition font-mono text-xs"
+                value="{{ token|default:'' }}"
+            />
+            <button 
+                type="button" 
+                onclick="verifyEmail()"
+                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-base font-bold px-10 h-12 bg-gradient-to-r from-red-600 to-red-700 text-white shadow-[0_0_30px_hsl(0_100%_50%/0.5)] hover:shadow-[0_0_40px_hsl(0_100%_50%/0.7)] hover:scale-105 transition-all duration-300 uppercase tracking-wider"
+            >
+                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                Verify Email
+            </button>
+        </div>
+
+        <!-- Resend Form -->
+        <div id="resend-form" class="hidden flex flex-col gap-4">
+            <div class="p-3 rounded-lg bg-yellow-900/30 border border-yellow-600/30 text-yellow-200 text-sm">
+                If you can't find the email, we can send you another verification link.
+            </div>
+            <input
+                type="email"
+                id="resend-email-input"
+                placeholder="Your Email"
+                required
+                class="px-4 py-3 rounded-lg bg-zinc-900 text-white text-sm border border-white/15 outline-none placeholder-gray-500 focus:border-red-600 focus:shadow-[0_0_14px_rgba(255,0,0,0.7)] transition"
+            />
+            <button 
+                type="button" 
+                onclick="resendVerificationEmail()"
+                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-base font-bold px-10 h-12 bg-gradient-to-r from-red-600 to-red-700 text-white shadow-[0_0_30px_hsl(0_100%_50%/0.5)] hover:shadow-[0_0_40px_hsl(0_100%_50%/0.7)] hover:scale-105 transition-all duration-300 uppercase tracking-wider"
+            >
+                <i data-lucide="mail" class="w-4 h-4"></i>
+                Resend Email
+            </button>
+            <button 
+                type="button" 
+                onclick="showVerificationForm()"
+                class="text-center text-sm text-gray-400 hover:text-red-400 transition"
+            >
+                ← Back to verification
+            </button>
+        </div>
+
+        <p class="mt-6 text-center text-xs text-gray-400">
+            Already verified? <a href="{% url 'accounts:login' %}" class="text-red-500 cursor-pointer hover:underline font-bold">Login Now</a>
+        </p>
+
+        <div class="mt-6 p-3 rounded-lg bg-blue-900/20 border border-blue-600/30 text-blue-200 text-xs">
+            <strong>💡 Tip:</strong> If you received an email with a verification link, click it directly instead of copying the token manually.
+        </div>
+    </div>
+</div>
+
+<script>
+    // Parse URL parameters
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get('token');
+    const urlEmail = params.get('email');
+
+    if (urlToken && urlEmail) {
+        document.getElementById('email-input').value = urlEmail;
+        document.getElementById('token-input').value = urlToken;
+        // Auto-verify if token is provided
+        setTimeout(() => {
+            verifyEmail();
+        }, 500);
+    }
+
+    function showVerificationForm() {
+        document.getElementById('verification-form').classList.remove('hidden');
+        document.getElementById('resend-form').classList.add('hidden');
+        document.getElementById('error-message').classList.add('hidden');
+        document.getElementById('success-message').classList.add('hidden');
+    }
+
+    function showResendForm() {
+        document.getElementById('verification-form').classList.add('hidden');
+        document.getElementById('resend-form').classList.remove('hidden');
+        document.getElementById('error-message').classList.add('hidden');
+    }
+
+    async function verifyEmail() {
+        const email = document.getElementById('email-input').value;
+        const token = document.getElementById('token-input').value;
+
+        if (!email || !token) {
+            alert('Please enter both email and verification token');
+            return;
+        }
+
+        try {
+            const response = await fetch('/accounts/auth/verify-email/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({
+                    email: email,
+                    token: token
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('verification-form').classList.add('hidden');
+                document.getElementById('success-message').classList.remove('hidden');
+                setTimeout(() => {
+                    window.location.href = '{% url "accounts:login" %}';
+                }, 3000);
+            } else {
+                const error = await response.json();
+                document.getElementById('error-message').textContent = error.detail || error.token || 'Verification failed. ' + (error.token ? error.token[0] : 'Please try again.');
+                document.getElementById('error-message').classList.remove('hidden');
+                document.getElementById('verification-form').classList.add('hidden');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    }
+
+    async function resendVerificationEmail() {
+        const email = document.getElementById('resend-email-input').value;
+
+        if (!email) {
+            alert('Please enter your email address');
+            return;
+        }
+
+        try {
+            const response = await fetch('/accounts/auth/resend-verification/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({
+                    email: email
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('resend-form').classList.add('hidden');
+                document.getElementById('success-message').textContent = '✓ Verification email sent! Check your inbox.';
+                document.getElementById('success-message').classList.remove('hidden');
+                setTimeout(() => {
+                    showVerificationForm();
+                }, 3000);
+            } else {
+                const error = await response.json();
+                alert('Error: ' + (error.email ? error.email[0] : error.detail || 'Failed to resend email'));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    }
+
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+               document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || '';
+    }
+</script>
+{% endblock %}

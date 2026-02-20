@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Verification Status - CYBER SENTINELS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #E50914 0%, #b80710 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(229, 9, 20, 0.3);
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 14px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(20, 20, 20, 0.9);
+            border: 2px solid #E50914;
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            color: #ccc;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stat-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #E50914;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #888;
+            font-size: 12px;
+        }
+        
+        .progress-bar {
+            background: rgba(255,255,255,0.1);
+            height: 6px;
+            border-radius: 3px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #E50914, #ff1a1a);
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .users-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .users-panel {
+            background: rgba(20, 20, 20, 0.9);
+            border: 2px solid;
+            border-radius: 8px;
+            padding: 25px;
+        }
+        
+        .users-panel.verified {
+            border-color: #4CAF50;
+        }
+        
+        .users-panel.unverified {
+            border-color: #f44336;
+        }
+        
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .panel-header h2 {
+            font-size: 20px;
+        }
+        
+        .panel-header .icon {
+            font-size: 28px;
+        }
+        
+        .users-panel.verified .panel-header {
+            color: #4CAF50;
+        }
+        
+        .users-panel.unverified .panel-header {
+            color: #f44336;
+        }
+        
+        .user-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .user-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 3px solid;
+        }
+        
+        .users-panel.verified .user-item {
+            border-left-color: #4CAF50;
+        }
+        
+        .users-panel.unverified .user-item {
+            border-left-color: #f44336;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .user-email {
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .user-badge {
+            font-size: 20px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        .filter-bar {
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .search-box {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            padding: 10px 15px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .search-box::placeholder {
+            color: #666;
+        }
+        
+        .btn {
+            background: #E50914;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #b80710;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .users-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-bar {
+                flex-direction: column;
+            }
+        }
+        
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Email Verification Dashboard</h1>
+            <p>Monitor user email verification status across the platform</p>
+        </div>
+        
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Users</h3>
+                <div class="stat-value" id="totalUsers">0</div>
+                <div class="stat-label">Active Platform Users</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>✅ Verified Users</h3>
+                <div class="stat-value" style="color: #4CAF50;" id="verifiedCount">0</div>
+                <div class="stat-label">Email Verified</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>❌ Unverified Users</h3>
+                <div class="stat-value" style="color: #f44336;" id="unverifiedCount">0</div>
+                <div class="stat-label">Awaiting Verification</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>📊 Verification Rate</h3>
+                <div class="stat-value" style="color: #E50914;" id="verificationRate">0%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <input type="text" id="searchBox" class="search-box" placeholder="Search by username or email...">
+            <button class="btn" onclick="loadStats()">🔄 Refresh</button>
+        </div>
+        
+        <!-- Users Lists -->
+        <div class="users-section">
+            <!-- Verified Users -->
+            <div class="users-panel verified">
+                <div class="panel-header">
+                    <div class="icon">✅</div>
+                    <h2>Verified Users</h2>
+                </div>
+                <div class="user-list" id="verifiedList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <p>Loading verified users...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Unverified Users -->
+            <div class="users-panel unverified">
+                <div class="panel-header">
+                    <div class="icon">❌</div>
+                    <h2>Unverified Users</h2>
+                </div>
+                <div class="user-list" id="unverifiedList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <p>Loading unverified users...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadStats() {
+            try {
+                const response = await fetch('/dojo/api/accounts/auth/verification-stats/');
+                if (!response.ok) throw new Error('Failed to fetch stats');
+                
+                const data = await response.json();
+                const stats = data.statistics;
+                
+                // Update stats
+                document.getElementById('totalUsers').textContent = stats.total_users;
+                document.getElementById('verifiedCount').textContent = stats.verified_users;
+                document.getElementById('unverifiedCount').textContent = stats.unverified_users;
+                document.getElementById('verificationRate').textContent = stats.verification_rate + '%';
+                document.getElementById('progressFill').style.width = stats.verification_rate + '%';
+                
+                // Update user lists
+                renderUsers(data.verified_list, 'verifiedList', true);
+                renderUsers(data.unverified_list, 'unverifiedList', false);
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                alert('Failed to load verification data. Make sure you are logged in.');
+            }
+        }
+        
+        function renderUsers(users, containerId, isVerified) {
+            const container = document.getElementById(containerId);
+            
+            if (!users || users.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">${isVerified ? '📪' : '📬'}</div>
+                        <p>${isVerified ? 'No verified users yet' : 'No unverified users'}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const searchText = document.getElementById('searchBox').value.toLowerCase();
+            const filteredUsers = users.filter(u => 
+                u.username.toLowerCase().includes(searchText) || 
+                u.email.toLowerCase().includes(searchText)
+            );
+            
+            if (filteredUsers.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <p>No users found</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filteredUsers.map(user => `
+                <div class="user-item">
+                    <div class="user-info">
+                        <div class="user-name">👤 ${user.username}</div>
+                        <div class="user-email">📧 ${user.email}</div>
+                    </div>
+                    <div class="user-badge">${isVerified ? '✅' : '❌'}</div>
+                </div>
+            `).join('');
+        }
+        
+        // Search functionality
+        document.getElementById('searchBox')?.addEventListener('input', () => {
+            loadStats();
+        });
+        
+        // Load stats on page load
+        window.addEventListener('load', loadStats);
+        
+        // Auto-refresh every 30 seconds
+        setInterval(loadStats, 30000);
+    </script>
+</body>
+</html>

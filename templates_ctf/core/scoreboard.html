@@ -1,0 +1,875 @@
+{% extends 'ctf_base.html' %}
+{% load static %}
+
+{% block title %}Scoreboard - CYBER SENTINELS CTF{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/first-blood.css' %}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+    .graph-container {
+        background: linear-gradient(to bottom right, rgba(17, 24, 39, 0.9), rgba(31, 41, 55, 0.9));
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .graph-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .graph-title {
+        font-size: 1.5rem;
+        color: #ef4444;
+        font-weight: bold;
+    }
+
+    .controls {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .toggle-btn {
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid #ef4444;
+        color: #ef4444;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        cursor: pointer;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+
+    .toggle-btn:hover {
+        background: rgba(239, 68, 68, 0.3);
+        transform: translateY(-1px);
+    }
+
+    .toggle-btn.active {
+        background: #ef4444;
+        color: white;
+    }
+
+    canvas {
+        max-height: 320px;
+    }
+
+    /* Explicit canvas height to keep it short */
+    #scoreChart {
+        height: 280px !important;
+    }
+
+    @media (max-width: 640px) {
+        #scoreChart {
+            height: 220px !important;
+        }
+    }
+
+    .legend-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        background: rgba(31, 41, 55, 0.5);
+        border: 1px solid rgba(107, 114, 128, 0.3);
+        border-radius: 0.375rem;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+        transform: translateX(0);
+    }
+    .legend-item:hover {
+        border-color: rgba(239, 68, 68, 0.5);
+        background: rgba(31, 41, 55, 0.7);
+        transform: translateX(3px);
+    }
+    .legend-item.active {
+        background: rgba(239, 68, 68, 0.2);
+        border-color: #ef4444;
+        border-width: 2px;
+        z-index: 2;
+    }
+    .legend-item.dimmed {
+        opacity: 0.3;
+    }
+    .legend-color {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+    }
+    .legend-item.active .legend-color {
+        width: 20px;
+        height: 20px;
+    }
+    .legend-name {
+        font-size: 1rem;
+        color: #e5e7eb;
+        font-weight: 500;
+        transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+    }
+    .legend-item.active .legend-name {
+        font-weight: bold;
+        color: #ef4444;
+    }
+    .legend-score {
+        font-size: 0.875rem;
+        color: #fbbf24;
+        font-weight: 600;
+        transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+    }
+    .legend-item.active .legend-score {
+        font-size: 1rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        background: linear-gradient(to right, #fbbf24, #f97316);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-black via-gray-950 to-black has-scoreboard">
+    <!-- Header -->
+    <div class="bg-black/80 border-b border-primary/30 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <h1 class="text-4xl font-bold font-jetbrains text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
+                🏆 SCOREBOARD
+            </h1>
+            {% if current_event %}
+                <p class="text-gray-400 mt-2">
+                    Event: <span class="text-primary font-semibold">{{ current_event.name }}</span>
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Frozen Scoreboard Indicator -->
+        {% if is_scoreboard_frozen %}
+            <div class="mb-6 p-4 bg-blue-950/50 border-2 border-blue-600 rounded-lg">
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl">❄️</div>
+                    <div>
+                        <h3 class="text-xl font-bold text-blue-400">Scoreboard Frozen</h3>
+                        <p class="text-blue-300 mt-1">This scoreboard displays scores as of {{ freeze_time|date:"Y-m-d H:i:s" }} UTC. No further updates will be applied.</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Ban Warning -->
+        {% if is_team_banned %}
+            <div class="mb-6 p-4 bg-red-950/50 border-2 border-red-600 rounded-lg">
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl">🚫</div>
+                    <div>
+                        <h3 class="text-xl font-bold text-red-400">Team Banned</h3>
+                        <p class="text-red-300 mt-1">{{ ban_reason }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if not current_event %}
+            <div class="text-center py-20 bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-red-500/30 rounded-lg">
+                <div class="text-6xl mb-4">⏳</div>
+                <h2 class="text-2xl font-bold text-red-400 mb-2">No Active Event</h2>
+                <p class="text-gray-400">Scoreboard will be available during events</p>
+            </div>
+        {% else %}
+            <!-- Score Graph Section -->
+            <!-- <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Teams</div>
+                    <div class="stat-value" id="totalTeams">{{ teams|length }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Active Challenges</div>
+                    <div class="stat-value" id="totalChallenges">{{ total_challenges }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Recent Solves</div>
+                    <div class="stat-value" id="recentSolvesCount">{{ recent_solves|length }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Event Status</div>
+                    <div class="stat-value" style="font-size: 1.2rem; text-transform: capitalize;">{{ current_event.get_contest_state_display }}</div>
+                </div>
+            </div> -->
+
+            {% if scoreboard_state == 'hidden' %}
+                <div class="text-center py-14 bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-red-500/30 rounded-lg">
+                    <div class="text-5xl mb-3">🚧</div>
+                    <h2 class="text-2xl font-bold text-red-400 mb-1">Scoreboard Hidden</h2>
+                    <p class="text-gray-400">The scoreboard is currently hidden by admins.</p>
+                </div>
+            {% endif %}
+            {% if scoreboard_state != 'hidden' %}
+            <div class="graph-container">
+                <div class="graph-header">
+                    <div class="graph-title">📊 Score Progression</div>
+                    <div class="controls">
+                        {% if not is_scoreboard_frozen %}
+                            <button class="toggle-btn active" onclick="scoreGraph.toggleView('cumulative')">Cumulative</button>
+                            <button class="toggle-btn" onclick="scoreGraph.toggleView('increment')">Incremental</button>
+                            <button class="toggle-btn" onclick="scoreGraph.toggleTop()">Top 10 Only</button>
+                        {% endif %}
+                        <button class="toggle-btn" onclick="scoreGraph.downloadChart()" style="background: rgba(34, 197, 94, 0.2); border-color: #22c55e; color: #22c55e;">
+                            📥 Download
+                        </button>
+                    </div>
+                </div>
+                <canvas id="scoreChart"></canvas>
+                <div class="legend-container" id="customLegend"></div>
+            </div>
+
+            
+            <!-- Main Scoreboard (existing) -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Main Scoreboard -->
+                <div class="lg:col-span-2">
+                    <div class="bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-red-500/30 rounded-lg overflow-hidden">
+                        <div class="bg-gradient-to-r from-red-600/20 to-orange-600/20 border-b border-red-500/30 px-6 py-4">
+                            <h2 class="text-2xl font-bold font-jetbrains text-red-400">Team Rankings</h2>
+                        </div>
+
+                        <div class="p-6">
+                            {% if teams %}
+                                <div class="space-y-2">
+                                    {% for entry in teams %}
+                                        <div class="flex items-center gap-4 p-4 rounded-lg transition {% if entry.team.id == user_team.id %}bg-red-500/10 border border-red-500/50{% else %}bg-gray-800/50 border border-gray-700 hover:border-red-500/30{% endif %}">
+                                            <!-- Rank -->
+                                            <div class="w-16 text-center">
+                                                {% if forloop.counter == 1 %}
+                                                    <div class="text-4xl">🥇</div>
+                                                {% elif forloop.counter == 2 %}
+                                                    <div class="text-4xl">🥈</div>
+                                                {% elif forloop.counter == 3 %}
+                                                    <div class="text-4xl">🥉</div>
+                                                {% else %}
+                                                    <div class="text-2xl font-bold text-gray-500">#{{ forloop.counter }}</div>
+                                                {% endif %}
+                                            </div>
+
+                                            <!-- Team Info -->
+                                            <div class="flex-1">
+                                                <div class="flex items-center gap-2">
+                                                    <h3 class="text-lg font-semibold {% if entry.team.id == user_team.id %}text-red-400{% else %}text-white{% endif %}">
+                                                        {{ entry.team.name }}
+                                                    </h3>
+                                                    {% if entry.team.id == user_team.id %}
+                                                        <span class="px-2 py-1 bg-red-500/20 border border-red-500/50 rounded text-xs text-red-400">YOU</span>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="flex items-center gap-4 mt-1 text-sm text-gray-400">
+                                                    <span>🔥 {{ entry.solved_count }}/{{ total_challenges }} solves</span>
+                                                    <span>⏱️ Last solve: {{ entry.last_solve_time|timesince }} ago</span>
+                                                </div>
+                                                <div class="flex items-center gap-4 mt-1 text-xs">
+                                                    <span class="px-2 py-1 rounded bg-green-500/10 border border-green-500/30 text-green-300">Without penalties: {{ entry.score_without_penalty }} pts</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Score -->
+                                            <div class="text-right">
+                                                <div class="text-3xl font-bold text-yellow-400">{{ entry.total_score }}</div>
+                                                <div class="text-xs text-gray-500">points</div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Pagination -->
+                                {% if has_more %}
+                                    <div class="mt-6 text-center">
+                                        <button class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition">
+                                            Load More
+                                        </button>
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <div class="text-center py-12 text-gray-400">
+                                    No teams have scored yet. Be the first!
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="space-y-6">
+                    <!-- Your Team Card -->
+                    {% if user_team %}
+                        <div class="bg-gradient-to-br from-red-900/30 to-orange-900/30 border border-red-500/30 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-red-400 mb-4">Your Team</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="text-sm text-gray-400">Team Name</div>
+                                    <div class="text-xl font-bold text-white">{{ user_team.name }}</div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <div class="text-xs text-gray-400">Rank</div>
+                                        <div class="text-2xl font-bold text-red-400">#{{ user_rank|default:"—" }}</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-gray-400">Score</div>
+                                        <div class="text-2xl font-bold text-yellow-400">{{ user_team_score }}</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-400">Challenges Solved</div>
+                                    <div class="text-lg font-semibold text-white">{{ user_solved_count }}/{{ total_challenges }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Recent Solves -->
+                    <div class="bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-gray-700 rounded-lg p-6">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-300 mb-2">🔥 Recent Solves</h3>
+                            {% if scoreboard_state == 'frozen' and freeze_time %}
+                                <div class="text-xs text-yellow-400 mb-3 px-2 py-1 bg-yellow-500/10 border border-yellow-500/30 rounded inline-block">
+                                    ❄️ Frozen as of {{ freeze_time|date:"H:i" }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="space-y-3 max-h-96 overflow-y-auto">
+                            {% for solve in recent_solves %}
+                                <div class="p-3 bg-gray-800/50 border border-gray-700 rounded-lg text-sm">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="font-semibold text-green-400">{{ solve.team.name }}</span>
+                                        <span class="text-xs text-gray-500">{{ solve.submitted_at|timesince }} ago</span>
+                                    </div>
+                                    <div class="text-gray-400">{{ solve.challenge.name }}</div>
+                                    <div class="text-yellow-400 text-xs">+{{ solve.points_awarded }} pts</div>
+                                </div>
+                            {% empty %}
+                                <p class="text-gray-500 text-center py-8">No solves yet</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Top Solvers -->
+                    <!-- <div class="bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-gray-700 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-300 mb-4">⭐ Top Solvers</h3>
+                        <div class="space-y-2">
+                            {% for solver in top_solvers %}
+                                <div class="flex items-center justify-between p-2 bg-gray-800/50 border border-gray-700 rounded">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                                            {{ solver.username|slice:":1"|upper }}
+                                        </div>
+                                        <span class="text-white text-sm">{{ solver.username }}</span>
+                                    </div>
+                                    <span class="text-green-400 text-sm font-semibold">{{ solver.solve_count }} solves</span>
+                                </div>
+                            {% empty %}
+                                <p class="text-gray-500 text-center py-4 text-sm">No data yet</p>
+                            {% endfor %}
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+<!-- Sound toggle button -->
+<button id="sound-toggle" class="sound-toggle" title="Toggle sound effects">
+    <span id="sound-icon">🔊</span>
+</button>
+
+<style>
+/* Smooth scrolling for recent solves */
+.max-h-96 {
+    scroll-behavior: smooth;
+}
+</style>
+
+<script src="{% static 'js/first-blood.js' %}"></script>
+
+<script>
+// Pass Django context data to JavaScript
+window.teamsGraphData = {{ teams_graph_data|safe }};
+window.scoreboardState = "{{ scoreboard_state|default:'hidden' }}";
+window.isScoreboardFrozen = {{ is_scoreboard_frozen|lower }};
+window.frozenAt = "{{ freeze_time|default:'' }}";
+</script>
+
+<script>
+// Score Graph Object
+const scoreGraph = {
+    chart: null,
+    viewMode: 'cumulative',
+    showTopOnly: false,
+    hiddenTeams: new Set(),
+    hiddenLabels: new Set(),
+    lastTeams: [],
+    selectedTeam: null, // CTFd-style selection
+    teamColors: [
+        '#ef4444', '#f97316', '#facc15', '#22c55e', '#3b82f6', '#a855f7',
+        '#ec4899', '#06b6d4', '#14b8a6', '#84cc16'
+    ],
+
+    // Convert Django context data to chart format
+    processTeamData: function(teams) {
+        const allTimes = new Set();
+        // Collect all solve times
+        teams.forEach(team => {
+            if (team.solves) {
+                team.solves.forEach(solve => allTimes.add(solve.time));
+            }
+        });
+        const sortedTimes = Array.from(allTimes).sort((a, b) => new Date(a) - new Date(b));
+        return teams.map((team, idx) => {
+            let cumulativeScore = 0;
+            const dataPoints = sortedTimes.map(time => {
+                const solve = team.solves ? team.solves.find(s => s.time === time) : null;
+                if (solve) {
+                    cumulativeScore += solve.points;
+                }
+                return this.viewMode === 'cumulative' ? cumulativeScore : (solve ? solve.points : 0);
+            });
+            const color = team.color || this.teamColors[idx % this.teamColors.length];
+            const isSelected = this.selectedTeam === team.name;
+            const shouldHide = this.selectedTeam !== null && !isSelected;
+            return {
+                label: team.name,
+                data: dataPoints,
+                borderColor: color,
+                backgroundColor: color + '20',
+                tension: 0.4,
+                fill: false,
+                borderWidth: isSelected ? 4 : 2.5,
+                pointRadius: isSelected ? 6 : 4,
+                pointHoverRadius: isSelected ? 8 : 6,
+                hidden: shouldHide
+            };
+        });
+    },
+
+    createChart: function(animated = true) {
+        const ctx = document.getElementById('scoreChart');
+        if (!ctx) return;
+        const chartCtx = ctx.getContext('2d');
+        // Get teams from page data
+        let teamsData = window.teamsGraphData || [];
+        if (this.showTopOnly && teamsData.length > 10) {
+            const teamScores = teamsData.map(team => ({
+                ...team,
+                totalScore: team.solves ? team.solves.reduce((sum, s) => sum + s.points, 0) : 0
+            }));
+            teamScores.sort((a, b) => b.totalScore - a.totalScore);
+            teamsData = teamScores.slice(0, 10);
+        }
+        // Collect all times
+        const allTimes = new Set();
+        teamsData.forEach(team => {
+            if (team.solves) {
+                team.solves.forEach(solve => allTimes.add(solve.time));
+            }
+        });
+        const sortedTimes = Array.from(allTimes).sort((a, b) => new Date(a) - new Date(b));
+        const labels = sortedTimes.map(t => {
+            const date = new Date(t);
+            return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        });
+        const datasets = this.processTeamData(teamsData);
+        this.lastTeams = teamsData;
+        if (this.chart) {
+            this.chart.destroy();
+        }
+        this.chart = new Chart(chartCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                animation: animated ? {
+                    duration: 1500,
+                    easing: 'easeInOutQuart'
+                } : false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        titleColor: '#ef4444',
+                        bodyColor: '#fff',
+                        borderColor: '#ef4444',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y + ' pts';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(239, 68, 68, 0.1)'
+                        },
+                        ticks: {
+                            color: '#9ca3af'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(239, 68, 68, 0.1)'
+                        },
+                        ticks: {
+                            color: '#9ca3af',
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                }
+            }
+        });
+        this.updateLegend(teamsData);
+    },
+
+    updateLegend: function(teams) {
+        const legendContainer = document.getElementById('customLegend');
+        if (!legendContainer) return;
+        legendContainer.innerHTML = '';
+        this.lastTeams = teams;
+        teams.forEach((team, idx) => {
+            const totalScore = team.solves ? team.solves.reduce((sum, s) => sum + s.points, 0) : 0;
+            const isActive = this.selectedTeam === team.name;
+            const isDimmed = this.selectedTeam !== null && !isActive;
+            const item = document.createElement('div');
+            item.className = 'legend-item' + (isActive ? ' active' : '') + (isDimmed ? ' dimmed' : '');
+            item.onclick = () => this.toggleTeamFocus(team.name);
+            const color = team.color || this.teamColors[idx % this.teamColors.length];
+            item.innerHTML = `
+                <div class="legend-color" style="background: ${color};${isActive ? 'width:20px;height:20px;' : ''}"></div>
+                <div class="legend-name" style="${isActive ? 'font-weight:bold;color:#ef4444;' : ''}">${team.name}</div>
+                <div class="legend-score" style="${isActive ? 'font-size:1rem;' : ''}">${totalScore}</div>
+            `;
+            legendContainer.appendChild(item);
+        });
+    },
+
+    toggleTeamFocus: function(teamName) {
+        if (this.selectedTeam === teamName) {
+            this.selectedTeam = null;
+        } else {
+            this.selectedTeam = teamName;
+        }
+        this.createChart(true);
+    },
+
+    toggleView: function(mode) {
+        this.viewMode = mode;
+        document.querySelectorAll('.controls .toggle-btn').forEach((btn, i) => {
+            if (i < 2) btn.classList.toggle('active', (mode === 'cumulative' && i === 0) || (mode === 'increment' && i === 1));
+        });
+        this.createChart(true);
+    },
+
+    toggleTop: function() {
+        this.showTopOnly = !this.showTopOnly;
+        const topBtn = document.querySelectorAll('.controls .toggle-btn')[2];
+        if (topBtn) {
+            topBtn.classList.toggle('active', this.showTopOnly);
+        }
+        this.createChart(true);
+    },
+
+    toggleLabel: function(teamName) {
+        if (this.hiddenLabels.has(teamName)) {
+            this.hiddenLabels.delete(teamName);
+        } else {
+            this.hiddenLabels.add(teamName);
+        }
+        // Just refresh legend UI; do not touch the chart datasets
+        this.updateLegend(this.lastTeams);
+    },
+downloadChart: function() {
+    const originalCanvas = document.getElementById('scoreChart');
+    if (!originalCanvas) return;
+
+    // Create a larger canvas for professional export
+    const compositeCanvas = document.createElement('canvas');
+    const chartWidth = 1400;
+    const chartHeight = 700;
+    const legendWidth = 320;
+    const padding = 40;
+    const headerHeight = 100;
+    
+    compositeCanvas.width = chartWidth + legendWidth + padding * 3;
+    compositeCanvas.height = chartHeight + headerHeight + padding * 3;
+    
+    const ctx = compositeCanvas.getContext('2d');
+    
+    // Background gradient
+    const bgGradient = ctx.createLinearGradient(0, 0, compositeCanvas.width, compositeCanvas.height);
+    bgGradient.addColorStop(0, '#000000');
+    bgGradient.addColorStop(0.5, '#450a0a');
+    bgGradient.addColorStop(1, '#000000');
+    ctx.fillStyle = bgGradient;
+    ctx.fillRect(0, 0, compositeCanvas.width, compositeCanvas.height);
+    
+    // Header section
+    const headerY = padding;
+    
+    // Title with gradient effect
+    const titleGradient = ctx.createLinearGradient(padding, headerY, padding + 500, headerY);
+    titleGradient.addColorStop(0, '#ef4444');
+    titleGradient.addColorStop(1, '#f97316');
+    ctx.fillStyle = titleGradient;
+    ctx.font = 'bold 36px JetBrains Mono, monospace';
+    ctx.fillText('🏆 CTF SCORE PROGRESSION', padding, headerY + 35);
+    
+    // Event name and timestamp
+    ctx.fillStyle = '#9ca3af';
+    ctx.font = '14px JetBrains Mono, monospace';
+    const now = new Date();
+    const timestamp = now.toLocaleString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric',
+        hour: '2-digit', 
+        minute: '2-digit' 
+    });
+    ctx.fillText('Generated: ' + timestamp, padding, headerY + 65);
+    
+    // Cyber Sentinels branding
+    ctx.fillStyle = '#ef4444';
+    ctx.font = 'bold 16px JetBrains Mono, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('CYBER SENTINELS', compositeCanvas.width - padding, headerY + 35);
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '12px JetBrains Mono, monospace';
+    ctx.fillText('cybersentinels.tech', compositeCanvas.width - padding, headerY + 60);
+    ctx.textAlign = 'left';
+    
+    // Chart container with border
+    const chartY = headerY + headerHeight + padding;
+    
+    // Outer glow effect
+    ctx.shadowColor = 'rgba(239, 68, 68, 0.3)';
+    ctx.shadowBlur = 20;
+    ctx.strokeStyle = 'rgba(239, 68, 68, 0.5)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(padding - 5, chartY - 5, chartWidth + 10, chartHeight + 10);
+    ctx.shadowBlur = 0;
+    
+    // Inner border
+    ctx.strokeStyle = 'rgba(239, 68, 68, 0.2)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(padding, chartY, chartWidth, chartHeight);
+    
+    // Draw chart
+    const chartData = originalCanvas.toDataURL('image/png');
+    const chartImg = new Image();
+    
+    chartImg.onload = function() {
+        // Draw the chart
+        ctx.drawImage(chartImg, padding, chartY, chartWidth, chartHeight);
+        
+        // Legend section
+        const legendX = chartWidth + padding * 2;
+        const legendY = chartY + 20;
+        
+        // Legend container background
+        const legendBoxHeight = chartHeight - 40;
+        ctx.fillStyle = 'rgba(17, 24, 39, 0.6)';
+        ctx.fillRect(legendX - 10, legendY - 10, legendWidth, legendBoxHeight);
+        
+        // Legend border
+        ctx.strokeStyle = 'rgba(239, 68, 68, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(legendX - 10, legendY - 10, legendWidth, legendBoxHeight);
+        
+        // Legend title
+        ctx.fillStyle = '#ef4444';
+        ctx.font = 'bold 18px JetBrains Mono, monospace';
+        ctx.fillText('TEAMS', legendX, legendY + 5);
+        
+        // Underline
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(legendX, legendY + 12);
+        ctx.lineTo(legendX + 80, legendY + 12);
+        ctx.stroke();
+        
+        // Get teams data
+        const teamsData = window.teamsGraphData || [];
+        const legendItemHeight = 38;
+        let yOffset = legendY + 40;
+        
+        // Calculate total scores and sort
+        const teamsWithScores = teamsData.map((team, idx) => ({
+            ...team,
+            totalScore: team.solves ? team.solves.reduce((sum, s) => sum + s.points, 0) : 0,
+            color: team.color || scoreGraph.teamColors[idx % scoreGraph.teamColors.length]
+        })).sort((a, b) => b.totalScore - a.totalScore);
+        
+        // Display top teams (max 15 for space)
+        const displayTeams = teamsWithScores.slice(0, 15);
+        
+        displayTeams.forEach((team, idx) => {
+            // Rank badge
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.2)';
+            ctx.fillRect(legendX, yOffset - 2, 28, 24);
+            ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(legendX, yOffset - 2, 28, 24);
+            
+            // Rank number
+            ctx.fillStyle = '#ef4444';
+            ctx.font = 'bold 14px JetBrains Mono, monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('#' + (idx + 1), legendX + 14, yOffset + 15);
+            ctx.textAlign = 'left';
+            
+            // Team color indicator
+            ctx.fillStyle = team.color;
+            ctx.fillRect(legendX + 38, yOffset + 2, 20, 18);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(legendX + 38, yOffset + 2, 20, 18);
+            
+            // Team name (truncate if too long)
+            ctx.fillStyle = '#e5e7eb';
+            ctx.font = '13px JetBrains Mono, monospace';
+            const maxNameWidth = 140;
+            let teamName = team.name;
+            let nameWidth = ctx.measureText(teamName).width;
+            
+            if (nameWidth > maxNameWidth) {
+                while (nameWidth > maxNameWidth && teamName.length > 0) {
+                    teamName = teamName.slice(0, -1);
+                    nameWidth = ctx.measureText(teamName + '...').width;
+                }
+                teamName += '...';
+            }
+            
+            ctx.fillText(teamName, legendX + 68, yOffset + 16);
+            
+            // Score
+            ctx.fillStyle = '#fbbf24';
+            ctx.font = 'bold 13px JetBrains Mono, monospace';
+            ctx.textAlign = 'right';
+            ctx.fillText(team.totalScore + ' pts', legendX + legendWidth - 20, yOffset + 16);
+            ctx.textAlign = 'left';
+            
+            yOffset += legendItemHeight;
+        });
+        
+        // Stats footer
+        const footerY = compositeCanvas.height - padding - 30;
+        
+        // Footer background
+        ctx.fillStyle = 'rgba(17, 24, 39, 0.5)';
+        ctx.fillRect(padding, footerY - 10, chartWidth, 50);
+        
+        // Stats
+        ctx.fillStyle = '#9ca3af';
+        ctx.font = '12px JetBrains Mono, monospace';
+        
+        const totalTeams = teamsData.length;
+        const totalSolves = teamsData.reduce((sum, t) => sum + (t.solves ? t.solves.length : 0), 0);
+        const leadingScore = teamsWithScores.length > 0 ? teamsWithScores[0].totalScore : 0;
+        
+        ctx.fillText('📊 Total Teams: ' + totalTeams, padding + 20, footerY + 10);
+        ctx.fillText('🔥 Total Solves: ' + totalSolves, padding + 220, footerY + 10);
+        ctx.fillText('🏆 Leading Score: ' + leadingScore + ' pts', padding + 420, footerY + 10);
+        
+        // View mode indicator
+        ctx.fillStyle = '#ef4444';
+        ctx.font = 'bold 12px JetBrains Mono, monospace';
+        ctx.textAlign = 'right';
+        const viewMode = scoreGraph.viewMode === 'cumulative' ? 'CUMULATIVE VIEW' : 'INCREMENTAL VIEW';
+        ctx.fillText(viewMode, chartWidth + padding - 20, footerY + 10);
+        ctx.textAlign = 'left';
+        
+        // Download the composite image
+        const url = compositeCanvas.toDataURL('image/png', 1.0);
+        const link = document.createElement('a');
+        link.download = 'cyber-sentinels-scoreboard-' + now.toISOString().slice(0, 10) + '-' + now.getHours() + 'h' + now.getMinutes() + 'm.png';
+        link.href = url;
+        link.click();
+    };
+    
+    chartImg.src = chartData;
+},
+
+    init: function() {
+        this.createChart();
+    }
+};
+
+// Initialize graph when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    scoreGraph.init();
+});
+</script>
+
+<script>
+// Sound toggle functionality
+const soundToggle = document.getElementById('sound-toggle');
+const soundIcon = document.getElementById('sound-icon');
+
+soundToggle.addEventListener('click', () => {
+    const currentState = localStorage.getItem('sound-enabled') !== 'false';
+    localStorage.setItem('sound-enabled', currentState ? 'false' : 'true');
+    soundToggle.classList.toggle('disabled');
+    soundIcon.textContent = currentState ? '🔇' : '🔊';
+});
+
+// Initialize sound state
+if (localStorage.getItem('sound-enabled') === 'false') {
+    soundToggle.classList.add('disabled');
+    soundIcon.textContent = '🔇';
+}
+
+// Auto-refresh scoreboard every 30 seconds (but NOT if frozen)
+setInterval(() => {
+    if (window.scoreboardState === 'live' && !window.isScoreboardFrozen && document.visibilityState === 'visible') {
+        window.location.reload();
+    }
+}, 30000);
+</script>
+{% endblock %}
