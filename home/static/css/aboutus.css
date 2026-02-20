@@ -1,7 +1,14 @@
 /* =========================
-   PAGE WRAPPER & BACKGROUND
-   Dark blue-grey, no red. Matches About Us screenshot.
+   CLUB ABOUT US PAGE — unique filename so CTF about.css never overrides
+   Dark blue-grey, cyan accent. No red.
    ========================= */
+
+/* Force body dark when this page is shown (overrides any other global red theme) */
+body:has(.aboutus-page) {
+  background: #050a12 !important;
+  background-image: none !important;
+  color: #e2e8f0 !important;
+}
 
 .aboutus-page {
   min-height: 100vh;
@@ -58,7 +65,7 @@
 .aboutus-hero-title {
   font-size: 4.5rem;
   font-weight: 900;
-  color: #ffffff;
+  color: #ffffff !important;
   margin: 0 0 20px;
   text-transform: uppercase;
   letter-spacing: -2px;
@@ -69,7 +76,7 @@
 
 .aboutus-hero-subtitle {
   font-size: 1.4rem;
-  color: #8b95a5;
+  color: #8b95a5 !important;
   margin: 0;
   font-weight: 400;
   animation: aboutus-fadeIn 1.2s ease-out 0.4s backwards;
@@ -147,27 +154,27 @@
 .aboutus-section-title {
   font-size: 2.5rem;
   font-weight: 800;
-  color: #ffffff;
+  color: #ffffff !important;
   margin: 0;
   letter-spacing: -1px;
   transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .aboutus-section:hover .aboutus-section-title {
-  color: #00bff3;
+  color: #00bff3 !important;
   transform: translateX(10px);
 }
 
 .aboutus-section-text {
   font-size: 1.2rem;
-  color: #8b95a5;
+  color: #8b95a5 !important;
   line-height: 1.9;
   margin: 0;
   transition: color 0.3s ease;
 }
 
 .aboutus-section:hover .aboutus-section-text {
-  color: #a0aec0;
+  color: #a0aec0 !important;
 }
 
 /* =========================
@@ -216,25 +223,25 @@
 .aboutus-activity-card h3 {
   font-size: 1.4rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #ffffff !important;
   margin: 0 0 12px;
   transition: color 0.3s ease;
 }
 
 .aboutus-activity-card:hover h3 {
-  color: #00bff3;
+  color: #00bff3 !important;
 }
 
 .aboutus-activity-card p {
   font-size: 1rem;
-  color: #8b95a5;
+  color: #8b95a5 !important;
   line-height: 1.7;
   margin: 0;
   transition: color 0.3s ease;
 }
 
 .aboutus-activity-card:hover p {
-  color: #a0aec0;
+  color: #a0aec0 !important;
 }
 
 /* =========================
@@ -278,7 +285,7 @@
 .aboutus-stat-number {
   font-size: 4rem;
   font-weight: 900;
-  color: #00bff3;
+  color: #00bff3 !important;
   margin-bottom: 8px;
   text-shadow: 0 0 30px rgba(0, 191, 243, 0.5);
   animation: aboutus-countUp 2s ease-out;
@@ -286,7 +293,7 @@
 
 .aboutus-stat-label {
   font-size: 1.1rem;
-  color: #8b95a5;
+  color: #8b95a5 !important;
   text-transform: uppercase;
   letter-spacing: 2px;
   font-weight: 600;
@@ -316,7 +323,7 @@
 
 .aboutus-cta-text {
   font-size: 1.2rem;
-  color: #8b95a5;
+  color: #8b95a5 !important;
   line-height: 1.8;
   max-width: 700px;
   margin: 0 auto 32px;
@@ -326,8 +333,8 @@
 
 .aboutus-cta-btn {
   padding: 18px 48px;
-  background: #00bff3;
-  color: #0a0f1e;
+  background: #00bff3 !important;
+  color: #0a0f1e !important;
   border: none;
   border-radius: 50px;
   font-size: 1.1rem;
@@ -433,8 +440,6 @@
     padding-bottom: 60px;
   }
 
-  /* HERO */
-
   .aboutus-hero {
     padding: 90px 16px 50px;
   }
@@ -454,8 +459,6 @@
     height: 380px;
     filter: blur(60px);
   }
-
-  /* SECTIONS */
 
   .aboutus-section {
     margin-bottom: 60px;
@@ -484,8 +487,6 @@
     line-height: 1.8;
   }
 
-  /* ACTIVITIES */
-
   .aboutus-activity-card {
     padding: 24px;
   }
@@ -493,8 +494,6 @@
   .aboutus-activity-card h3 {
     font-size: 1.2rem;
   }
-
-  /* STATS */
 
   .aboutus-stats-section {
     padding: 40px 20px;
@@ -513,8 +512,6 @@
     font-size: 0.95rem;
     letter-spacing: 1px;
   }
-
-  /* CTA */
 
   .aboutus-cta-section {
     padding: 40px 20px;
@@ -555,9 +552,9 @@
   }
 }
 
-/* Ensure no red UI on About Us – cyan/blue focus and links only */
+/* Override any red/body leak from other stylesheets */
 .aboutus-page a:not(.aboutus-cta-btn) {
-  color: var(--text-main);
+  color: var(--text-main) !important;
 }
 .aboutus-page input:focus,
 .aboutus-page button:focus,
