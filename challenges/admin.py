@@ -117,7 +117,8 @@ class ChallengeAdmin(admin.ModelAdmin):
             'fields': ('name', 'description', 'event', 'category', 'author', 'difficulty')
         }),
         ('Status', {
-            'fields': ('is_visible', 'is_active', 'release_time')
+            'fields': ('is_visible', 'is_active', 'release_time'),
+            'description': 'Release time: Set when challenge becomes visible. Leave empty for immediate visibility. Use admin actions to reset or set to now.'
         }),
         ('Scoring', {
             'fields': ('points', 'minimum_points', 'decay')
@@ -172,7 +173,7 @@ class ChallengeAdmin(admin.ModelAdmin):
         }),
     )
     
-    actions = ['activate_challenges', 'deactivate_challenges', 'make_visible', 'make_hidden']
+    actions = ['activate_challenges', 'deactivate_challenges', 'make_visible', 'make_hidden', 'reset_release_time', 'set_release_time_now']
     
     def activate_challenges(self, request, queryset):
         count = queryset.update(is_active=True)
@@ -193,6 +194,19 @@ class ChallengeAdmin(admin.ModelAdmin):
         count = queryset.update(is_visible=False)
         self.message_user(request, f'{count} challenges made hidden.')
     make_hidden.short_description = "Make selected challenges hidden"
+    
+    def reset_release_time(self, request, queryset):
+        """Reset release_time to None (remove delay)"""
+        count = queryset.update(release_time=None)
+        self.message_user(request, f'{count} challenges release time reset (delay removed).')
+    reset_release_time.short_description = "Reset release time (remove delay)"
+    
+    def set_release_time_now(self, request, queryset):
+        """Set release_time to current time (make available immediately)"""
+        from django.utils import timezone
+        count = queryset.update(release_time=timezone.now())
+        self.message_user(request, f'{count} challenges release time set to now (available immediately).')
+    set_release_time_now.short_description = "Set release time to now (available immediately)"
 
     def save_model(self, request, obj, form, change):
         """Persist selected docker image and container port into instance_config; create config if missing."""

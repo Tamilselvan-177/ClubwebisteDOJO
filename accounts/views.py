@@ -695,6 +695,8 @@ def register_view(request):
         errors['email'] = ['Email is required']
     elif '@' not in email:
         errors['email'] = ['Invalid email format']
+    elif not email.lower().endswith('@rajalakshmi.edu.in'):
+        errors['email'] = ['Only email addresses from rajalakshmi.edu.in are allowed for registration']
     elif User.objects.filter(email=email).exists():
         errors['email'] = ['Email already registered']
     

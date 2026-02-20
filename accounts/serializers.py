@@ -35,6 +35,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return attrs
 
     def validate_email(self, value):
+        # Only allow emails from rajalakshmi.edu.in domain
+        allowed_domain = 'rajalakshmi.edu.in'
+        if not value.lower().endswith(f'@{allowed_domain}'):
+            raise serializers.ValidationError(
+                f"Only email addresses from {allowed_domain} are allowed for registration."
+            )
+        
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError("A user with this email already exists.")
         return value

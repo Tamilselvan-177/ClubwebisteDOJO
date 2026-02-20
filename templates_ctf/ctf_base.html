@@ -254,10 +254,10 @@
             const notifConfig = {
                 'challenge_release': {
                     icon: '🆕',
-                    iconBg: 'bg-red-500/20',
-                    titleColor: 'text-red-300',
-                    buttonBg: 'bg-red-600 hover:bg-red-500',
-                    badgeBg: 'bg-red-500/20 text-red-300 border-red-500/30'
+                    iconBg: 'bg-blue-500/20',
+                    titleColor: 'text-blue-300',
+                    buttonBg: 'bg-blue-600 hover:bg-blue-500',
+                    badgeBg: 'bg-blue-500/20 text-blue-300 border-blue-500/30'
                 },
                 'hint': {
                     icon: '💡',
@@ -271,7 +271,7 @@
             const config = notifConfig[notification.notification_type] || notifConfig['challenge_release'];
 
             const card = document.createElement('div');
-            card.className = 'w-full max-w-md bg-gray-900/95 backdrop-blur-xl border border-red-500/30 rounded-2xl shadow-2xl overflow-hidden popup-enter pointer-events-auto';
+            card.className = 'w-full max-w-md bg-gray-900/95 backdrop-blur-xl border border-blue-500/30 rounded-2xl shadow-2xl overflow-hidden popup-enter pointer-events-auto';
 
             // Header
             const header = document.createElement('div');
@@ -390,9 +390,9 @@
 
             // Progress bar at bottom
             const progressContainer = document.createElement('div');
-            progressContainer.className = 'h-1 bg-red-500/30';
+            progressContainer.className = 'h-1 bg-blue-500/30';
             const progressBar = document.createElement('div');
-            progressBar.className = 'h-full bg-red-500 progress-bar';
+            progressBar.className = 'h-full bg-blue-500 progress-bar';
             progressContainer.appendChild(progressBar);
             card.appendChild(progressContainer);
 

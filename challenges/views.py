@@ -912,6 +912,23 @@ def challenge_detail_view(request, challenge_id):
     effective_points = challenge.get_current_points() + team_penalty  # penalty is negative
     effective_points = max(challenge.minimum_points, effective_points)  # floor at minimum
     
+    # Check if any penalty type is enabled (for UI display)
+    has_penalty_enabled = (
+        challenge.reduce_points_on_wrong_flag or 
+        challenge.reduce_points_on_expiry or 
+        challenge.reduce_points_on_stop
+    )
+    
+    # Get flag format for display - always use event name format (never expose actual challenge flag format)
+    # Format: eventname{...} (e.g., "CyberSentinels2026{...}")
+    event_name = challenge.event.name if challenge.event else 'CTF'
+    # Clean event name for flag format (remove spaces, special chars, make it clean)
+    import re
+    clean_event_name = re.sub(r'[^a-zA-Z0-9]', '', event_name)
+    if not clean_event_name:
+        clean_event_name = 'CTF'
+    flag_format = f"{clean_event_name}{{...}}"
+    
     # Compute display minutes rounded up to avoid showing "healthy (0 min)" when seconds remain
     display_minutes_remaining = None
     if total_seconds is not None:
@@ -944,6 +961,8 @@ def challenge_detail_view(request, challenge_id):
         'unlocked_hint_ids': list(unlocked_hint_ids),
         'team_penalty': team_penalty,
         'effective_points': effective_points,
+        'has_penalty_enabled': has_penalty_enabled,
+        'flag_format': flag_format,
         'renewals_available': renewals_available,
         'renewals_used': renewals_used,
         'renewal_limit': renewal_limit,

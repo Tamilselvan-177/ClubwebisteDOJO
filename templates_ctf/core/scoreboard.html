@@ -9,7 +9,7 @@
 <style>
     .graph-container {
         background: linear-gradient(to bottom right, rgba(17, 24, 39, 0.9), rgba(31, 41, 55, 0.9));
-        border: 1px solid rgba(239, 68, 68, 0.3);
+        border: 1px solid rgba(59, 130, 246, 0.3);
         border-radius: 0.5rem;
         padding: 1rem;
         margin-bottom: 1.25rem;
@@ -21,12 +21,12 @@
         align-items: center;
         margin-bottom: 1.5rem;
         padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+        border-bottom: 1px solid rgba(59, 130, 246, 0.2);
     }
 
     .graph-title {
         font-size: 1.5rem;
-        color: #ef4444;
+        color: #3b82f6;
         font-weight: bold;
     }
 
@@ -37,9 +37,9 @@
     }
 
     .toggle-btn {
-        background: rgba(239, 68, 68, 0.2);
-        border: 1px solid #ef4444;
-        color: #ef4444;
+        background: rgba(59, 130, 246, 0.2);
+        border: 1px solid #3b82f6;
+        color: #3b82f6;
         padding: 0.5rem 1rem;
         border-radius: 0.375rem;
         cursor: pointer;
@@ -49,12 +49,12 @@
     }
 
     .toggle-btn:hover {
-        background: rgba(239, 68, 68, 0.3);
+        background: rgba(59, 130, 246, 0.3);
         transform: translateY(-1px);
     }
 
     .toggle-btn.active {
-        background: #ef4444;
+        background: #3b82f6;
         color: white;
     }
 
@@ -79,7 +79,7 @@
         gap: 0.75rem;
         margin-top: 1.5rem;
         padding-top: 1.5rem;
-        border-top: 1px solid rgba(239, 68, 68, 0.2);
+        border-top: 1px solid rgba(59, 130, 246, 0.2);
     }
 
 
@@ -96,13 +96,13 @@
         transform: translateX(0);
     }
     .legend-item:hover {
-        border-color: rgba(239, 68, 68, 0.5);
+        border-color: rgba(59, 130, 246, 0.5);
         background: rgba(31, 41, 55, 0.7);
         transform: translateX(3px);
     }
     .legend-item.active {
-        background: rgba(239, 68, 68, 0.2);
-        border-color: #ef4444;
+        background: rgba(59, 130, 246, 0.2);
+        border-color: #3b82f6;
         border-width: 2px;
         z-index: 2;
     }
@@ -127,7 +127,7 @@
     }
     .legend-item.active .legend-name {
         font-weight: bold;
-        color: #ef4444;
+        color: #3b82f6;
     }
     .legend-score {
         font-size: 0.875rem;
@@ -182,21 +182,21 @@
 
         <!-- Ban Warning -->
         {% if is_team_banned %}
-            <div class="mb-6 p-4 bg-red-950/50 border-2 border-red-600 rounded-lg">
+            <div class="mb-6 p-4 bg-blue-950/50 border-2 border-blue-600 rounded-lg">
                 <div class="flex items-center gap-3">
                     <div class="text-3xl">🚫</div>
                     <div>
-                        <h3 class="text-xl font-bold text-red-400">Team Banned</h3>
-                        <p class="text-red-300 mt-1">{{ ban_reason }}</p>
+                        <h3 class="text-xl font-bold text-blue-400">Team Banned</h3>
+                        <p class="text-blue-300 mt-1">{{ ban_reason }}</p>
                     </div>
                 </div>
             </div>
         {% endif %}
 
         {% if not current_event %}
-            <div class="text-center py-20 bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-red-500/30 rounded-lg">
+            <div class="text-center py-20 bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-blue-500/30 rounded-lg">
                 <div class="text-6xl mb-4">⏳</div>
-                <h2 class="text-2xl font-bold text-red-400 mb-2">No Active Event</h2>
+                <h2 class="text-2xl font-bold text-blue-400 mb-2">No Active Event</h2>
                 <p class="text-gray-400">Scoreboard will be available during events</p>
             </div>
         {% else %}
@@ -221,9 +221,9 @@
             </div> -->
 
             {% if scoreboard_state == 'hidden' %}
-                <div class="text-center py-14 bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-red-500/30 rounded-lg">
+                <div class="text-center py-14 bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-blue-500/30 rounded-lg">
                     <div class="text-5xl mb-3">🚧</div>
-                    <h2 class="text-2xl font-bold text-red-400 mb-1">Scoreboard Hidden</h2>
+                    <h2 class="text-2xl font-bold text-blue-400 mb-1">Scoreboard Hidden</h2>
                     <p class="text-gray-400">The scoreboard is currently hidden by admins.</p>
                 </div>
             {% endif %}
@@ -251,16 +251,16 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Main Scoreboard -->
                 <div class="lg:col-span-2">
-                    <div class="bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-red-500/30 rounded-lg overflow-hidden">
-                        <div class="bg-gradient-to-r from-red-600/20 to-orange-600/20 border-b border-red-500/30 px-6 py-4">
-                            <h2 class="text-2xl font-bold font-jetbrains text-red-400">Team Rankings</h2>
+                    <div class="bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-blue-500/30 rounded-lg overflow-hidden">
+                        <div class="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border-b border-blue-500/30 px-6 py-4">
+                            <h2 class="text-2xl font-bold font-jetbrains text-blue-400">Team Rankings</h2>
                         </div>
 
                         <div class="p-6">
                             {% if teams %}
                                 <div class="space-y-2">
                                     {% for entry in teams %}
-                                        <div class="flex items-center gap-4 p-4 rounded-lg transition {% if entry.team.id == user_team.id %}bg-red-500/10 border border-red-500/50{% else %}bg-gray-800/50 border border-gray-700 hover:border-red-500/30{% endif %}">
+                                        <div class="flex items-center gap-4 p-4 rounded-lg transition {% if entry.team.id == user_team.id %}bg-blue-500/10 border border-blue-500/50{% else %}bg-gray-800/50 border border-gray-700 hover:border-blue-500/30{% endif %}">
                                             <!-- Rank -->
                                             <div class="w-16 text-center">
                                                 {% if forloop.counter == 1 %}
@@ -277,11 +277,11 @@
                                             <!-- Team Info -->
                                             <div class="flex-1">
                                                 <div class="flex items-center gap-2">
-                                                    <h3 class="text-lg font-semibold {% if entry.team.id == user_team.id %}text-red-400{% else %}text-white{% endif %}">
+                                                    <h3 class="text-lg font-semibold {% if entry.team.id == user_team.id %}text-blue-400{% else %}text-white{% endif %}">
                                                         {{ entry.team.name }}
                                                     </h3>
                                                     {% if entry.team.id == user_team.id %}
-                                                        <span class="px-2 py-1 bg-red-500/20 border border-red-500/50 rounded text-xs text-red-400">YOU</span>
+                                                        <span class="px-2 py-1 bg-blue-500/20 border border-blue-500/50 rounded text-xs text-blue-400">YOU</span>
                                                     {% endif %}
                                                 </div>
                                                 <div class="flex items-center gap-4 mt-1 text-sm text-gray-400">
@@ -305,7 +305,7 @@
                                 <!-- Pagination -->
                                 {% if has_more %}
                                     <div class="mt-6 text-center">
-                                        <button class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition">
+                                        <button class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
                                             Load More
                                         </button>
                                     </div>
@@ -323,8 +323,8 @@
                 <div class="space-y-6">
                     <!-- Your Team Card -->
                     {% if user_team %}
-                        <div class="bg-gradient-to-br from-red-900/30 to-orange-900/30 border border-red-500/30 rounded-lg p-6">
-                            <h3 class="text-lg font-semibold text-red-400 mb-4">Your Team</h3>
+                        <div class="bg-gradient-to-br from-blue-900/30 to-cyan-900/30 border border-blue-500/30 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-blue-400 mb-4">Your Team</h3>
                             <div class="space-y-3">
                                 <div>
                                     <div class="text-sm text-gray-400">Team Name</div>
@@ -333,7 +333,7 @@
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
                                         <div class="text-xs text-gray-400">Rank</div>
-                                        <div class="text-2xl font-bold text-red-400">#{{ user_rank|default:"—" }}</div>
+                                        <div class="text-2xl font-bold text-blue-400">#{{ user_rank|default:"—" }}</div>
                                     </div>
                                     <div>
                                         <div class="text-xs text-gray-400">Score</div>
@@ -381,7 +381,7 @@
                             {% for solver in top_solvers %}
                                 <div class="flex items-center justify-between p-2 bg-gray-800/50 border border-gray-700 rounded">
                                     <div class="flex items-center gap-2">
-                                        <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
                                             {{ solver.username|slice:":1"|upper }}
                                         </div>
                                         <span class="text-white text-sm">{{ solver.username }}</span>
@@ -433,7 +433,7 @@ const scoreGraph = {
     lastTeams: [],
     selectedTeam: null, // CTFd-style selection
     teamColors: [
-        '#ef4444', '#f97316', '#facc15', '#22c55e', '#3b82f6', '#a855f7',
+        '#3b82f6', '#06b6d4', '#facc15', '#22c55e', '#8b5cf6', '#a855f7',
         '#ec4899', '#06b6d4', '#14b8a6', '#84cc16'
     ],
 
@@ -528,9 +528,9 @@ const scoreGraph = {
                     },
                     tooltip: {
                         backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                        titleColor: '#ef4444',
+                        titleColor: '#3b82f6',
                         bodyColor: '#fff',
-                        borderColor: '#ef4444',
+                        borderColor: '#3b82f6',
                         borderWidth: 1,
                         padding: 12,
                         displayColors: true,
@@ -545,7 +545,7 @@ const scoreGraph = {
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: 'rgba(239, 68, 68, 0.1)'
+                            color: 'rgba(59, 130, 246, 0.1)'
                         },
                         ticks: {
                             color: '#9ca3af'
@@ -553,7 +553,7 @@ const scoreGraph = {
                     },
                     x: {
                         grid: {
-                            color: 'rgba(239, 68, 68, 0.1)'
+                            color: 'rgba(59, 130, 246, 0.1)'
                         },
                         ticks: {
                             color: '#9ca3af',
@@ -582,7 +582,7 @@ const scoreGraph = {
             const color = team.color || this.teamColors[idx % this.teamColors.length];
             item.innerHTML = `
                 <div class="legend-color" style="background: ${color};${isActive ? 'width:20px;height:20px;' : ''}"></div>
-                <div class="legend-name" style="${isActive ? 'font-weight:bold;color:#ef4444;' : ''}">${team.name}</div>
+                <div class="legend-name" style="${isActive ? 'font-weight:bold;color:#3b82f6;' : ''}">${team.name}</div>
                 <div class="legend-score" style="${isActive ? 'font-size:1rem;' : ''}">${totalScore}</div>
             `;
             legendContainer.appendChild(item);
@@ -654,8 +654,8 @@ downloadChart: function() {
     
     // Title with gradient effect
     const titleGradient = ctx.createLinearGradient(padding, headerY, padding + 500, headerY);
-    titleGradient.addColorStop(0, '#ef4444');
-    titleGradient.addColorStop(1, '#f97316');
+    titleGradient.addColorStop(0, '#3b82f6');
+    titleGradient.addColorStop(1, '#06b6d4');
     ctx.fillStyle = titleGradient;
     ctx.font = 'bold 36px JetBrains Mono, monospace';
     ctx.fillText('🏆 CTF SCORE PROGRESSION', padding, headerY + 35);
@@ -674,7 +674,7 @@ downloadChart: function() {
     ctx.fillText('Generated: ' + timestamp, padding, headerY + 65);
     
     // Cyber Sentinels branding
-    ctx.fillStyle = '#ef4444';
+    ctx.fillStyle = '#3b82f6';
     ctx.font = 'bold 16px JetBrains Mono, monospace';
     ctx.textAlign = 'right';
     ctx.fillText('CYBER SENTINELS', compositeCanvas.width - padding, headerY + 35);
@@ -687,15 +687,15 @@ downloadChart: function() {
     const chartY = headerY + headerHeight + padding;
     
     // Outer glow effect
-    ctx.shadowColor = 'rgba(239, 68, 68, 0.3)';
+    ctx.shadowColor = 'rgba(59, 130, 246, 0.3)';
     ctx.shadowBlur = 20;
-    ctx.strokeStyle = 'rgba(239, 68, 68, 0.5)';
+    ctx.strokeStyle = 'rgba(59, 130, 246, 0.5)';
     ctx.lineWidth = 2;
     ctx.strokeRect(padding - 5, chartY - 5, chartWidth + 10, chartHeight + 10);
     ctx.shadowBlur = 0;
     
     // Inner border
-    ctx.strokeStyle = 'rgba(239, 68, 68, 0.2)';
+    ctx.strokeStyle = 'rgba(59, 130, 246, 0.2)';
     ctx.lineWidth = 1;
     ctx.strokeRect(padding, chartY, chartWidth, chartHeight);
     
@@ -717,17 +717,17 @@ downloadChart: function() {
         ctx.fillRect(legendX - 10, legendY - 10, legendWidth, legendBoxHeight);
         
         // Legend border
-        ctx.strokeStyle = 'rgba(239, 68, 68, 0.3)';
+        ctx.strokeStyle = 'rgba(59, 130, 246, 0.3)';
         ctx.lineWidth = 1;
         ctx.strokeRect(legendX - 10, legendY - 10, legendWidth, legendBoxHeight);
         
         // Legend title
-        ctx.fillStyle = '#ef4444';
+        ctx.fillStyle = '#3b82f6';
         ctx.font = 'bold 18px JetBrains Mono, monospace';
         ctx.fillText('TEAMS', legendX, legendY + 5);
         
         // Underline
-        ctx.strokeStyle = '#ef4444';
+        ctx.strokeStyle = '#3b82f6';
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(legendX, legendY + 12);
@@ -751,14 +751,14 @@ downloadChart: function() {
         
         displayTeams.forEach((team, idx) => {
             // Rank badge
-            ctx.fillStyle = 'rgba(239, 68, 68, 0.2)';
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.2)';
             ctx.fillRect(legendX, yOffset - 2, 28, 24);
-            ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
+            ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
             ctx.lineWidth = 1;
             ctx.strokeRect(legendX, yOffset - 2, 28, 24);
             
             // Rank number
-            ctx.fillStyle = '#ef4444';
+            ctx.fillStyle = '#3b82f6';
             ctx.font = 'bold 14px JetBrains Mono, monospace';
             ctx.textAlign = 'center';
             ctx.fillText('#' + (idx + 1), legendX + 14, yOffset + 15);
@@ -818,7 +818,7 @@ downloadChart: function() {
         ctx.fillText('🏆 Leading Score: ' + leadingScore + ' pts', padding + 420, footerY + 10);
         
         // View mode indicator
-        ctx.fillStyle = '#ef4444';
+        ctx.fillStyle = '#3b82f6';
         ctx.font = 'bold 12px JetBrains Mono, monospace';
         ctx.textAlign = 'right';
         const viewMode = scoreGraph.viewMode === 'cumulative' ? 'CUMULATIVE VIEW' : 'INCREMENTAL VIEW';

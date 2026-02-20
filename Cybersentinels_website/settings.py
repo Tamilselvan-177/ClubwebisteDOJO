@@ -29,7 +29,7 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = config(
     'ALLOWED_HOSTS',
-    default='historied-untasted-merilyn.ngrok-free.app,localhost,127.0.0.1',
+    default='webmasters-chamber-closing-inputs.trycloudflare.com,historied-untasted-merilyn.ngrok-free.app,localhost,127.0.0.1',
     cast=lambda v: [s.strip() for s in v.split(',')]
 )
 
@@ -121,9 +121,12 @@ AUTH_PASSWORD_VALIDATORS = []
 AUTH_USER_MODEL = 'accounts.User'
 
 CSRF_TRUSTED_ORIGINS = [
+    "https://webmasters-chamber-closing-inputs.trycloudflare.com",
     "https://historied-untasted-merilyn.ngrok-free.app",
     'http://localhost:8000',
     'http://127.0.0.1:8000',
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
 ]
 
 # Internationalization

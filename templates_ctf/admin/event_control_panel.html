@@ -14,13 +14,13 @@
     .btn-start { @apply bg-green-600 hover:bg-green-700 text-white; }
     .btn-pause { @apply bg-yellow-600 hover:bg-yellow-700 text-white; }
     .btn-resume { @apply bg-blue-600 hover:bg-blue-700 text-white; }
-    .btn-stop { @apply bg-red-600 hover:bg-red-700 text-white; }
+    .btn-stop { @apply bg-blue-600 hover:bg-blue-700 text-white; }
     .state-badge {
         @apply px-3 py-1 rounded-full text-xs font-tech uppercase tracking-wider;
     }
     .state-running { @apply bg-green-600/20 text-green-400 border border-green-600/50; }
     .state-paused { @apply bg-yellow-600/20 text-yellow-400 border border-yellow-600/50; }
-    .state-stopped { @apply bg-red-600/20 text-red-400 border border-red-600/50; }
+    .state-stopped { @apply bg-blue-600/20 text-blue-400 border border-blue-600/50; }
     .state-resumed { @apply bg-blue-600/20 text-blue-400 border border-blue-600/50; }
     .state-not_started { @apply bg-gray-600/20 text-gray-400 border border-gray-600/50; }
 </style>
@@ -78,7 +78,7 @@
             <div class="text-sm text-muted-foreground font-tech uppercase">Submissions</div>
         </div>
         <div class="stat-card">
-            <div class="text-3xl font-display text-red-500 mb-2">{{ stats.violations }}</div>
+            <div class="text-3xl font-display text-blue-500 mb-2">{{ stats.violations }}</div>
             <div class="text-sm text-muted-foreground font-tech uppercase">Violations</div>
         </div>
     </div>
@@ -101,7 +101,7 @@
                     <td class="px-4 py-3 text-sm">{{ stat.challenge__name|default:"Unknown" }}</td>
                     <td class="px-4 py-3 text-sm">{{ stat.total }}</td>
                     <td class="px-4 py-3 text-sm text-green-400">{{ stat.running }}</td>
-                    <td class="px-4 py-3 text-sm text-red-400">{{ stat.stopped }}</td>
+                    <td class="px-4 py-3 text-sm text-blue-400">{{ stat.stopped }}</td>
                 </tr>
                 {% empty %}
                 <tr>
