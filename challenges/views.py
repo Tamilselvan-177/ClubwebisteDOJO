@@ -943,6 +943,10 @@ def challenge_detail_view(request, challenge_id):
         except Exception:
             renewal_threshold_seconds = None
 
+    # Docker available for instance-based challenges (so UI can disable Start button if not)
+    from challenges.services import instance_service
+    docker_available = instance_service.client is not None
+
     context = {
         'challenge': challenge,
         'is_solved': is_solved,
@@ -966,6 +970,7 @@ def challenge_detail_view(request, challenge_id):
         'renewals_available': renewals_available,
         'renewals_used': renewals_used,
         'renewal_limit': renewal_limit,
+        'docker_available': docker_available,
     }
     
     return render(request, 'challenges/challenge_detail.html', context)

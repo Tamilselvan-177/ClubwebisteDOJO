@@ -1,8 +1,12 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django import forms
+import os
 import subprocess
+import logging
 from .models import Category, Challenge, ChallengeFile, Hint, ChallengeInstance
+
+logger = logging.getLogger(__name__)
 
 
 @admin.register(Category)
@@ -33,38 +37,59 @@ class HintInline(admin.TabularInline):
 
 
 def _list_docker_images():
-    """Return list of docker images as strings 'repository:tag'."""
+    """
+    Return list of docker images as 'repository:tag'. Runs 'docker images' on this server only (no Docker Hub / pull).
+    The dropdown shows only what the web server process can see: same user must be in the 'docker' group and
+    service restarted after that, or the command fails and you get no real images (you can still type image:tag manually).
+    """
     images = []
-    try:
-        result = subprocess.run(
-            ['docker', 'images', '--format', '{{.Repository}}:{{.Tag}}'],
-            capture_output=True,
-            timeout=10,
-            text=True
-        )
-        if result.returncode == 0:
-            for line in result.stdout.splitlines():
-                line = line.strip()
-                if line and line != '<none>:<none>':
-                    images.append(line)
-    except Exception:
-        # If docker is not available, return empty list
-        pass
-    # Ensure some common images for convenience
-    defaults = ['ubuntu:latest', 'python:3.11', 'nginx:latest']
-    for img in defaults:
-        if img not in images:
-            images.append(img)
+    # Try full paths first so admin works when run under systemd (minimal PATH); then fall back to PATH
+    for docker_cmd in ['/usr/bin/docker', '/usr/local/bin/docker', 'docker']:
+        try:
+            result = subprocess.run(
+                [docker_cmd, 'images', '--format', '{{.Repository}}:{{.Tag}}'],
+                capture_output=True,
+                timeout=10,
+                text=True,
+                env={**os.environ, 'PATH': os.environ.get('PATH', '/usr/local/bin:/usr/bin:/bin')}
+            )
+            if result.returncode == 0:
+                for line in result.stdout.splitlines():
+                    line = line.strip()
+                    if line and line != '<none>:<none>':
+                        images.append(line)
+                break
+            else:
+                logger.warning("docker images failed (%s): %s", docker_cmd, (result.stderr or result.stdout or "").strip())
+        except FileNotFoundError:
+            continue
+        except Exception as e:
+            logger.warning("Could not list Docker images (%s): %s", docker_cmd, e)
+    else:
+        logger.warning("Docker not found in PATH, /usr/bin/docker, or /usr/local/bin/docker. Use 'Or type image:tag manually' below.")
+    # Ensure some common images for convenience when docker is available
+    if images:
+        for img in ['ubuntu:latest', 'python:3.11', 'nginx:latest']:
+            if img not in images:
+                images.append(img)
     return images
 
 
 class ChallengeAdminForm(forms.ModelForm):
-    """Admin form with Docker image dropdown helper for instance-based challenges."""
+    """Admin form with Docker image dropdown and manual override for instance-based challenges."""
 
     docker_image = forms.ChoiceField(
         required=False,
         choices=[],
-        label='Docker Image (from server)'
+        label='Docker Image (from server)',
+        help_text='Populated from "docker images" on this server. If empty, the web server user may not have Docker access (see instructions below).'
+    )
+
+    docker_image_manual = forms.CharField(
+        required=False,
+        max_length=255,
+        label='Or type image:tag manually',
+        help_text='e.g. hawkinslab-hawkins:latest — use this if the dropdown is empty (Docker not available to the server) or your image is not listed.'
     )
 
     container_port = forms.IntegerField(
@@ -81,14 +106,17 @@ class ChallengeAdminForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Populate docker image choices from server
         images = _list_docker_images()
-        self.fields['docker_image'].choices = [(img, img) for img in images]
+        self.fields['docker_image'].choices = [('', '---------')] + [(img, img) for img in images]
 
         # Pre-select from existing instance_config
         try:
             config = self.instance.instance_config or {}
             current_image = config.get('image')
-            if current_image and current_image in images:
-                self.fields['docker_image'].initial = current_image
+            if current_image:
+                if current_image in images:
+                    self.fields['docker_image'].initial = current_image
+                else:
+                    self.fields['docker_image_manual'].initial = current_image
             # Pull the first container port if present
             ports = config.get('ports') or {}
             if isinstance(ports, dict) and ports:
@@ -133,6 +161,7 @@ class ChallengeAdmin(admin.ModelAdmin):
         ('Instance Configuration', {
             'fields': (
                 'docker_image',
+                'docker_image_manual',
                 'container_port',
                 'instance_url_type',
                 'instance_flag_format', 
@@ -140,7 +169,7 @@ class ChallengeAdmin(admin.ModelAdmin):
                 'max_instances_per_team'
             ),
             'classes': ('collapse',),
-            'description': 'Select an image from the server. Set the container port your app listens on; the backend will assign a random host port automatically and inject FLAG at runtime. Choose URL display type (Web URL or Netcat).'
+            'description': 'Select an image from the server or type image:tag manually (e.g. hawkinslab-hawkins:latest). If dropdown is empty, add the web server user to the docker group: sudo usermod -aG docker <user> and restart the app. Set the container port your app listens on; the backend will assign a random host port and inject FLAG at runtime.'
         }),
         ('Instance Renewal Settings', {
             'fields': (
@@ -219,10 +248,14 @@ class ChallengeAdmin(admin.ModelAdmin):
             existing = {}
 
         docker_image = form.cleaned_data.get('docker_image')
+        docker_image_manual = (form.cleaned_data.get('docker_image_manual') or '').strip()
         container_port = form.cleaned_data.get('container_port') or 5000  # default for typical web images
 
         config = {}
-        if docker_image:
+        # Prefer manually typed image (so you can use any image even when dropdown is empty)
+        if docker_image_manual:
+            config['image'] = docker_image_manual
+        elif docker_image:
             config['image'] = docker_image
 
         # Set the container port; backend will bind a random host port

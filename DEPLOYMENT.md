@@ -94,6 +94,9 @@ REDIS_URL=redis://127.0.0.1:6379/0
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 CELERY_BROKER_URL=redis://127.0.0.1:6379/0
+
+# Required for form/API submissions (flag submit, notifications). Use the exact URL(s) users use to open the site.
+CSRF_TRUSTED_ORIGINS=http://YOUR_VPS_IP,https://YOUR_VPS_IP
 ```
 
 Generate a new `SECRET_KEY`:
@@ -114,6 +117,18 @@ source venv/bin/activate
 python manage.py migrate
 python manage.py collectstatic --noinput
 python manage.py createsuperuser
+```
+
+---
+
+## 6b. Start Redis (required when DEBUG=False)
+
+The app uses Redis for cache, WebSockets (notifications), and Celery. If Redis is not running, you may see **"Unexpected response from server"** on flag submission and `redis.exceptions.ConnectionError` in logs.
+
+```bash
+sudo systemctl start redis-server
+sudo systemctl enable redis-server
+sudo systemctl status redis-server
 ```
 
 ---
@@ -326,8 +341,8 @@ sudo systemctl start cybersentinels-celery cybersentinels-celerybeat
 | 2 | `apt install` → nginx, python3-venv, redis-server |
 | 3 | Upload project to VPS |
 | 4 | `python3 -m venv venv` and `pip install -r requirements.txt` |
-| 5 | Create `.env` with `DEBUG=False`, `ALLOWED_HOSTS=YOUR_VPS_IP`, `SITE_BASE_URL=http://YOUR_VPS_IP` |
-| 6 | `migrate`, `collectstatic`, `createsuperuser` |
+| 5 | Create `.env` with `DEBUG=False`, `ALLOWED_HOSTS=YOUR_VPS_IP`, `SITE_BASE_URL`, `CSRF_TRUSTED_ORIGINS`, Redis vars |
+| 6 | `migrate`, `collectstatic`, `createsuperuser`; **start Redis**: `sudo systemctl start redis-server` |
 | 7 | Run Daphne or Gunicorn manually to test |
 | 8 | Create and start systemd service |
 | 9 | Configure Nginx and reload |
@@ -347,5 +362,7 @@ sudo systemctl start cybersentinels-celery cybersentinels-celerybeat
 
 - **502 Bad Gateway:** App not running. Check: `sudo systemctl status cybersentinels` and logs: `journalctl -u cybersentinels -f`
 - **Static files 404:** Run `python manage.py collectstatic --noinput` and check `alias` path in Nginx.
-- **CSRF / redirect issues:** In `.env`, set `SITE_BASE_URL=http://YOUR_VPS_IP` and add your IP to `ALLOWED_HOSTS`.
+- **"Unexpected response from server" on flag submit / 403 Forbidden:** (1) **Redis must be running** when `DEBUG=False` (cache and WebSockets use it). Start it: `sudo systemctl start redis-server && sudo systemctl enable redis-server`. (2) Set **CSRF_TRUSTED_ORIGINS** in `.env` to the URL(s) users use (e.g. `CSRF_TRUSTED_ORIGINS=http://YOUR_VPS_IP,https://YOUR_VPS_IP`). Then restart the app: `sudo systemctl restart cybersentinels`.
+- **Redis ConnectionError (Error 111) in logs:** Redis is not running or not reachable. Install if needed: `sudo apt install redis-server`, then `sudo systemctl start redis-server`.
+- **CSRF / redirect issues:** In `.env`, set `SITE_BASE_URL=http://YOUR_VPS_IP`, add your IP to `ALLOWED_HOSTS`, and set `CSRF_TRUSTED_ORIGINS=http://YOUR_VPS_IP,https://YOUR_VPS_IP`.
 - **WebSockets not working:** Use Daphne (step 9) and the Daphne systemd service; keep `proxy_set_header Upgrade` and `Connection "upgrade"` in Nginx.

@@ -121,14 +121,17 @@ AUTH_PASSWORD_VALIDATORS = []
 # Custom User Model (from CTF accounts app)
 AUTH_USER_MODEL = 'accounts.User'
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://webmasters-chamber-closing-inputs.trycloudflare.com",
-    "https://historied-untasted-merilyn.ngrok-free.app",
-    'http://localhost:8000',
-    'http://127.0.0.1:8000',
-    'http://localhost:8080',
-    'http://127.0.0.1:8080',
-]
+# Comma-separated origins allowed for CSRF (e.g. http://YOUR_VPS_IP,https://YOUR_VPS_IP). Required for form/API posts when DEBUG=False.
+_CSRF_DEFAULT = (
+    "https://webmasters-chamber-closing-inputs.trycloudflare.com,"
+    "https://historied-untasted-merilyn.ngrok-free.app,"
+    "http://localhost:8000,http://127.0.0.1:8000,http://localhost:8080,http://127.0.0.1:8080"
+)
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default=_CSRF_DEFAULT,
+    cast=lambda v: [s.strip() for s in v.split(',') if s.strip()]
+)
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
