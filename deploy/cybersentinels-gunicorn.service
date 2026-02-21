@@ -1,0 +1,19 @@
+# Systemd service for Cyber Sentinels (Gunicorn - HTTP only, no WebSockets)
+# Use this if you don't need WebSockets. Copy to /etc/systemd/system/
+# Replace YOUR_USER and project path, then: sudo systemctl daemon-reload && sudo systemctl enable cybersentinels && sudo systemctl start cybersentinels
+
+[Unit]
+Description=Cyber Sentinels Website (Gunicorn WSGI)
+After=network.target
+
+[Service]
+User=YOUR_USER
+Group=YOUR_USER
+WorkingDirectory=/home/YOUR_USER/Cyber-Sentinels-Website
+Environment="PATH=/home/YOUR_USER/Cyber-Sentinels-Website/venv/bin"
+ExecStart=/home/YOUR_USER/Cyber-Sentinels-Website/venv/bin/gunicorn --workers 2 --bind 127.0.0.1:8000 Cybersentinels_website.wsgi:application
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
