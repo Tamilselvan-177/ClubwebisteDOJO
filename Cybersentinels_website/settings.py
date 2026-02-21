@@ -70,6 +70,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Serve static files when DEBUG=False
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -144,7 +145,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static_ctf',  # CTF static files
@@ -176,6 +177,10 @@ else:
     EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Cyber Sentinels CTF <noreply@cybersentinels.com>')
+
+# Base URL for email links (verify email, reset password) when request is not available.
+# No trailing slash. Path /dojo/accounts/verify-email/ or /dojo/accounts/reset-password/ is appended in email_service.
+SITE_BASE_URL = config('SITE_BASE_URL', default='http://127.0.0.1:8000')
 
 # Django REST Framework
 REST_FRAMEWORK = {

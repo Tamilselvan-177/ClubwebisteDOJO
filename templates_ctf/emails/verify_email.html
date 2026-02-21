@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Your Email - 0xTi</title>
+    <title>Verify Your Email - Cyber Sentinels Dojo</title>
     <style>
         * {
             margin: 0;
@@ -12,171 +12,141 @@
         }
         
         body {
-            font-family: 'Courier New', monospace;
-            background: #0A0A0A;
-            color: #E0E0E0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #050a12;
+            color: #e2e8f0;
         }
         
         .container {
             max-width: 600px;
             margin: 0 auto;
-            background: #1A1A1A;
-            border: 2px solid #E50914;
-            border-radius: 8px;
+            background: #0f172a;
+            border: 1px solid rgba(0, 191, 243, 0.3);
+            border-radius: 12px;
             overflow: hidden;
         }
         
         .header {
-            background: linear-gradient(135deg, #E50914 0%, #B20710 100%);
-            padding: 30px 20px;
+            background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0284c7 100%);
+            padding: 28px 20px;
             text-align: center;
         }
         
         .header h1 {
-            color: #FFF;
-            font-size: 28px;
-            text-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+            color: #fff;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 1px;
             margin: 0;
-            letter-spacing: 2px;
-        }
-        
-        .header h1::before {
-            content: "🛡️ ";
+            text-shadow: 0 0 20px rgba(0, 191, 243, 0.4);
         }
         
         .content {
-            padding: 40px 30px;
+            padding: 36px 28px;
         }
         
         .greeting {
-            font-size: 18px;
-            margin-bottom: 20px;
-            color: #E0E0E0;
+            font-size: 17px;
+            margin-bottom: 16px;
+            color: #e2e8f0;
         }
         
         .message {
             font-size: 14px;
-            line-height: 1.8;
-            color: #B0B0B0;
-            margin-bottom: 30px;
+            line-height: 1.75;
+            color: #94a3b8;
+            margin-bottom: 24px;
         }
         
         .verification-link {
             display: inline-block;
-            background: linear-gradient(135deg, #E50914 0%, #B20710 100%);
-            color: #FFF;
-            padding: 15px 40px;
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: #fff;
+            padding: 14px 36px;
             text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 16px;
-            box-shadow: 0 0 20px rgba(229, 9, 20, 0.5);
-            transition: all 0.3s ease;
-            margin: 30px 0;
-            display: block;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 15px;
+            box-shadow: 0 4px 20px rgba(2, 132, 199, 0.4);
+            transition: all 0.2s ease;
+            margin: 24px 0;
             text-align: center;
         }
         
         .verification-link:hover {
-            box-shadow: 0 0 30px rgba(229, 9, 20, 0.8);
-        }
-        
-        .token-box {
-            background: #0A0A0A;
-            border: 1px solid #2A2A2A;
-            border-radius: 4px;
-            padding: 20px;
-            margin: 20px 0;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            word-break: break-all;
-            color: #00D4FF;
+            box-shadow: 0 6px 28px rgba(2, 132, 199, 0.5);
         }
         
         .expiry {
-            background: #1A1A1A;
-            border-left: 3px solid #E50914;
-            padding: 15px 20px;
+            background: rgba(2, 132, 199, 0.1);
+            border-left: 4px solid #0284c7;
+            padding: 14px 18px;
             margin: 20px 0;
             font-size: 13px;
-            color: #FFB3B3;
+            color: #bae6fd;
         }
         
         .footer {
-            background: #0A0A0A;
-            padding: 20px;
+            background: #020617;
+            padding: 18px 20px;
             text-align: center;
             font-size: 12px;
-            color: #808080;
-            border-top: 1px solid #2A2A2A;
-        }
-        
-        .glitch-text {
-            text-shadow: 0 0 10px #E50914, 0 0 20px #E50914;
+            color: #64748b;
+            border-top: 1px solid rgba(0, 191, 243, 0.15);
         }
         
         .warning {
-            color: #FFB3B3;
+            color: #94a3b8;
             font-size: 12px;
             margin-top: 20px;
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 6px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
-            <h1 class="glitch-text">0xTi</h1>
+            <h1>Cyber Sentinels Dojo</h1>
         </div>
         
-        <!-- Content -->
         <div class="content">
             <div class="greeting">
-                Welcome, <strong>{{ user_username }}</strong>! 🎯
+                Welcome, <strong>{{ user_username }}</strong>!
             </div>
             
             <div class="message">
-                <p>Thank you for registering on 0xTi! We're excited to have you join our community of hackers and security enthusiasts.</p>
-                <p style="margin-top: 15px;">To complete your registration and unlock all features, please verify your email address by clicking the button below:</p>
+                <p>Thank you for signing up on <strong>Cyber Sentinels Dojo</strong> — the CTF platform of the Cyber Sentinels club website.</p>
+                <p style="margin-top: 14px;">To complete your registration and access challenges, please verify your email by clicking the button below:</p>
             </div>
             
-            <!-- Verification Button -->
             <a href="{{ verify_url }}" class="verification-link">
-                ✓ VERIFY EMAIL
+                Verify my email
             </a>
             
-            <!-- Expiry Warning -->
             <div class="expiry">
-                ⏰ <strong>Verification Link Expires In:</strong> 24 hours
-                <br>
-                If you don't verify your email within 24 hours, you'll need to request a new verification link.
+                <strong>Verification link expires in 24 hours.</strong><br>
+                If you don’t verify in time, you can request a new link from the Dojo login page.
             </div>
             
-            <!-- Extra Info -->
-            <div class="message" style="margin-top: 30px; border-top: 1px solid #2A2A2A; padding-top: 20px;">
+            <div class="message" style="margin-top: 24px; border-top: 1px solid rgba(0, 191, 243, 0.15); padding-top: 18px;">
                 <p><strong>Why verify?</strong></p>
-                <p style="margin-top: 10px;">Verifying your email helps us:</p>
-                <ul style="margin-left: 20px; margin-top: 10px;">
-                    <li>Ensure you can recover your account if needed</li>
-                    <li>Send you important notifications about challenges</li>
-                    <li>Prevent spam and unauthorized access</li>
+                <ul style="margin-left: 20px; margin-top: 8px;">
+                    <li>Recover your account if you forget your password</li>
+                    <li>Receive notifications about challenges and events</li>
+                    <li>Keep the platform secure and spam-free</li>
                 </ul>
             </div>
             
-            <!-- Security Warning -->
             <div class="warning">
-                🔒 <strong>Security Notice:</strong> Never share this verification link with anyone. 0xTi staff will never ask you for this link.
-                <br><br>
-                If you didn't create this account, please ignore this email or contact us immediately.
+                <strong>Security:</strong> Don’t share this link. Cyber Sentinels will never ask you for it. If you didn’t create this account, ignore this email.
             </div>
         </div>
         
-        <!-- Footer -->
         <div class="footer">
-            <p>0xTi © 2026 | All Rights Reserved</p>
-            <p style="margin-top: 10px; color: #606060;">
-                Questions? Contact our support team at support@0xti.com
-            </p>
+            <p>Cyber Sentinels — Cybersentinels_website</p>
+            <p style="margin-top: 8px; color: #475569;">Sentinels Dojo · Club website CTF application</p>
         </div>
     </div>
 </body>

@@ -5,6 +5,8 @@ from rest_framework.views import APIView
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.urls import reverse
+from urllib.parse import urlencode
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -728,7 +730,7 @@ def register_view(request):
             verification_token = user.generate_email_verification_token()
             send_verification_email(user, verification_token, request)
             messages.success(request, 'Registration successful! Please check your email to verify your account.')
-            return redirect(f'/accounts/check-email/?email={email}')
+            return redirect(reverse('accounts:check_email') + '?' + urlencode({'email': email}))
 
         # Auto-verify and login when verification is disabled
         user.is_email_verified = True

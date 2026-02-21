@@ -132,7 +132,7 @@
         }
 
         try {
-            const response = await fetch('/accounts/auth/verify-email/', {
+            const response = await fetch('{% url "accounts:login" %}'.replace(/\/login\/$/, '') + 'auth/verify-email/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -172,7 +172,7 @@
         }
 
         try {
-            const response = await fetch('/accounts/auth/resend-verification/', {
+            const response = await fetch('{% url "accounts:login" %}'.replace(/\/login\/$/, '') + 'auth/resend-verification/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

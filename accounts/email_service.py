@@ -83,8 +83,10 @@ def send_verification_email(user, verification_token, request=None):
             logger.error(f"Invalid email format: {email}")
             return False
 
-        # Hardcode verification link domain
-        verify_url = f"https://0xti.online/accounts/verify-email/?token={verification_token}&email={email}"
+        # Verification link: use request host when available, else SITE_BASE_URL from env; path always /dojo/accounts/
+        base = get_host_from_request(request) if request else getattr(settings, 'SITE_BASE_URL', 'http://127.0.0.1:8000')
+        base = base.rstrip('/')
+        verify_url = f"{base}/dojo/accounts/verify-email/?token={verification_token}&email={email}"
         
         context = {
             'user_username': username,  # Use sanitized username
@@ -94,7 +96,7 @@ def send_verification_email(user, verification_token, request=None):
         # Render HTML email template (Django templates auto-escape by default)
         html_message = render_to_string('emails/verify_email.html', context)
         plain_message = f"""
-    Welcome to 0xTi, {username}!
+    Welcome to Cyber Sentinels Dojo, {username}!
     
     Please verify your email by clicking the link below:
     {verify_url}
@@ -104,11 +106,11 @@ def send_verification_email(user, verification_token, request=None):
     If you didn't create this account, please ignore this email.
     
     Best regards,
-    0xTi Team
+    Cyber Sentinels
     """
         
         result = send_mail(
-            subject='Verify Your Email - 0xTi',
+            subject='Verify Your Email - Cyber Sentinels Dojo',
             message=plain_message,
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[email],
@@ -146,23 +148,24 @@ def send_password_reset_email(user, reset_token, request=None):
             logger.error(f"Invalid email format: {email}")
             return False
         
-        # Generate dynamic host-based URL
+        # Reset link: use request host when available, else SITE_BASE_URL from env; path always /dojo/accounts/
         if request:
             base_url = get_host_from_request(request)
         else:
-            base_url = settings.FRONTEND_URL
-        
-        reset_url = f"{base_url}/reset-password?token={reset_token}&email={email}"
+            base_url = getattr(settings, 'SITE_BASE_URL', 'http://127.0.0.1:8000')
+        base_url = base_url.rstrip('/')
+        reset_url = f"{base_url}/dojo/accounts/reset-password/?token={reset_token}&email={email}"
         
         context = {
-            'user_username': username,  # Use sanitized username
+            'user_username': username,
             'reset_url': reset_url,
+            'token': reset_token,
         }
         
         # Render HTML email template (Django templates auto-escape by default)
         html_message = render_to_string('emails/reset_password.html', context)
         plain_message = f"""
-    Password Reset Request - 0xTi
+    Password Reset Request - Cyber Sentinels Dojo
     
     Click the link below to reset your password:
     {reset_url}
@@ -172,11 +175,11 @@ def send_password_reset_email(user, reset_token, request=None):
     If you didn't request a password reset, please ignore this email or contact support.
     
     Best regards,
-    0xTi Team
+    Cyber Sentinels
     """
         
         result = send_mail(
-            subject='Reset Your Password - 0xTi',
+            subject='Reset Your Password - Cyber Sentinels Dojo',
             message=plain_message,
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[email],

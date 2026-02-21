@@ -260,7 +260,7 @@
                     
                     // Redirect to check email page after 2 seconds
                     setTimeout(() => {
-                        window.location.href = '/accounts/check-email/?email=' + encodeURIComponent(emailInput.value);
+                        window.location.href = '{% url "accounts:check_email" %}?email=' + encodeURIComponent(emailInput.value);
                     }, 2000);
                 } else {
                     // Error
