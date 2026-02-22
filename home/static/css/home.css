@@ -1,5 +1,5 @@
-/* Header Navigation */
-header {
+/* Header Navigation – only the site navbar, not writeup page header */
+header.site-header {
   border-bottom: 1px solid var(--border-color);
   padding: 1.5rem 2rem;
   position: sticky;
@@ -29,13 +29,13 @@ header {
 
 .logo i { color: var(--accent-cyan); }
 
-nav ul {
+.site-header nav ul {
   display: flex;
   list-style: none;
   gap: 2rem;
 }
 
-nav a {
+.site-header nav a {
   text-decoration: none;
   color: var(--text-muted);
   font-size: 0.8rem;
@@ -45,11 +45,12 @@ nav a {
   transition: color 0.3s;
 }
 
-nav a:hover, nav a.active {
+.site-header nav a:hover,
+.site-header nav a.active {
   color: var(--text-main);
 }
 
-nav a.active {
+.site-header nav a.active {
   border-bottom: 2px solid var(--accent-cyan);
   padding-bottom: 5px;
 }
@@ -269,8 +270,8 @@ nav a.active {
   font-size: 0.85rem;
 }
 
-/* Footer */
-footer {
+/* Footer – only the site footer, not writeup page footer */
+footer.site-footer {
   border-top: 1px solid var(--border-color);
   padding: 4rem 2rem;
   text-align: center;
@@ -278,7 +279,7 @@ footer {
   margin-top: auto;
 }
 
-.footer-content {
+.site-footer .footer-content {
   max-width: 1100px;
   margin: 0 auto;
   display: flex;

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load markdown_extras %}
 
 {% block title %}Writeups | Cyber Sentinels{% endblock %}
 
@@ -21,9 +22,7 @@
         </div>
 
         <h3>{{ wu.title }}</h3>
-        <p>
-          {{ wu.summary }}
-        </p>
+        <p class="writeup-preview">{{ wu.summary|markdown_to_plain|truncatewords:40 }}</p>
 
         <a href="{% url 'writeups:writeup' wu.pk %}">
           Read More

@@ -1,20 +1,59 @@
 {% extends "base.html" %}
 {% load markdown_extras %}
-{% block title %}Writeups | Cyber Sentinels{% endblock %}
+{% load static %}
+
+{% block title %}{{ object.title }} | Writeups | Cyber Sentinels{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="{% static 'writeups/css/writeup-detail.css' %}">
+{% endblock %}
 
 {% block content %}
-<main class="blog-page">
+<div id="writeup-detail-page" class="writeup-page-shell">
 
-  <section class="blog-detail-hero">
+  <nav class="breadcrumb" aria-label="breadcrumb">
+    <a href="{% url 'home:home' %}">Home</a>
+    <span class="sep">/</span>
+    <a href="{% url 'writeups:writeups' %}">Writeups</a>
+    <span class="sep">/</span>
+    <span class="current">{{ object.title }}</span>
+  </nav>
+
+  <header class="writeup-header">
+    {% if object.category %}
+    <div class="writeup-category">{{ object.category }}</div>
+    {% endif %}
     <h1>{{ object.title }}</h1>
-    <p class="blog-detail-subtitle">{{ object.date }}</p>
-    <br/>
-    <br/>
-    <p class="blog-detail-body">{{ object.content|markdownify|safe|linebreaks }}</p>
-    <br/>
-    <br/>
-    <p class="blog-detail-subtitle">Written & Posted by {{ object.author }}</p>
-    <p class="blog-detail-subtitle">{{ object.position }}, Cyber Sentinels</p>
-  </section>
-</main>
+    <div class="writeup-meta">
+      <div class="author">
+        <div class="author-avatar">{{ object.author|slice:":2"|upper }}</div>
+        <span>{{ object.author }}</span>
+      </div>
+      <span class="meta-dot">·</span>
+      <span class="date">{{ object.date|date:"M j, Y" }}</span>
+      {% if object.difficulty %}
+      <span class="meta-dot">·</span>
+      <span class="difficulty-badge {{ object.difficulty|lower }}">{{ object.difficulty }}</span>
+      {% endif %}
+    </div>
+  </header>
+
+  <article class="md-render" id="md-content">
+    {{ object.summary|markdownify|safe }}
+  </article>
+
+  <footer class="writeup-footer">
+    <a href="{% url 'writeups:writeups' %}" class="back-link">← Back to Writeups</a>
+    <span>Cyber Sentinels</span>
+  </footer>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="{% static 'writeups/js/writeup_detail.js' %}"></script>
 {% endblock %}

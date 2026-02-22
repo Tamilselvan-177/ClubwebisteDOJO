@@ -1,0 +1,471 @@
+/* Writeup detail – UI from reference (Buffer Overflow style) */
+
+:root {
+  --bg:           #0b0d11;
+  --bg-card:      #111318;
+  --bg-code:      #0d1117;
+  --bg-inline:    rgba(99,179,237,0.10);
+  --border:       #1e2330;
+  --border-soft:  rgba(255,255,255,0.06);
+  --text:         #dde3ef;
+  --text-muted:   #6b758f;
+  --text-faint:   #3a4255;
+  --cyan:         #38bdf8;
+  --cyan-dim:     rgba(56,189,248,0.15);
+  --green:        #4ade80;
+  --amber:        #fbbf24;
+  --red:          #f87171;
+  --purple:       #a78bfa;
+}
+
+/* ── RESET: ensure writeup header/footer/nav are not styled as site header/footer ── */
+#writeup-detail-page header.writeup-header,
+.writeup-page-shell header.writeup-header {
+  position: static !important;
+  top: auto !important;
+  z-index: auto !important;
+  padding: 0 0 2rem 0 !important;
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid var(--border);
+  background: transparent !important;
+  backdrop-filter: none !important;
+}
+
+#writeup-detail-page footer.writeup-footer,
+.writeup-page-shell footer.writeup-footer {
+  position: static !important;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  padding-bottom: 0 !important;
+  border-top: 1px solid var(--border);
+  background: transparent !important;
+}
+
+#writeup-detail-page nav.breadcrumb,
+.writeup-page-shell nav.breadcrumb {
+  position: static !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+}
+
+/* Override base.css generic h1/h2/h3 so writeup typography wins */
+.writeup-page-shell .writeup-header h1,
+.writeup-page-shell .md-render h1,
+.writeup-page-shell .md-render h2,
+.writeup-page-shell .md-render h3,
+.writeup-page-shell .md-render h4 {
+  margin: 2em 0 0.6em;
+}
+.writeup-page-shell .writeup-header h1 { margin: 0 0 1rem 0; }
+
+/* Scope all styles to the writeup page wrapper */
+.writeup-page-shell {
+  display: grid;
+  grid-template-columns: 1fr min(760px, 100%) 1fr;
+  padding: 3rem 20px 6rem;
+  background: var(--bg);
+}
+
+.writeup-page-shell > * { grid-column: 2; }
+
+/* Breadcrumb */
+.writeup-page-shell .breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 2.5rem;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.writeup-page-shell .breadcrumb a {
+  color: var(--text-muted) !important;
+  text-decoration: none !important;
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+.writeup-page-shell .breadcrumb a:hover { color: var(--cyan) !important; }
+.writeup-page-shell .breadcrumb .sep { color: var(--text-faint); }
+.writeup-page-shell .breadcrumb .current { color: var(--cyan); }
+
+/* Writeup header */
+.writeup-page-shell .writeup-header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+  animation: fadeUp 0.4s ease both;
+}
+
+.writeup-page-shell .writeup-category {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  background: var(--cyan-dim);
+  border: 1px solid rgba(56,189,248,0.25);
+  padding: 0.25em 0.75em;
+  border-radius: 3px;
+  margin-bottom: 1rem;
+}
+
+.writeup-page-shell .writeup-header h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.6rem, 4vw, 2.1rem);
+  font-weight: 800;
+  line-height: 1.2;
+  color: #fff;
+  margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.writeup-page-shell .writeup-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.writeup-page-shell .writeup-meta .author {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.writeup-page-shell .author-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #fff;
+  font-family: 'Syne', sans-serif;
+  flex-shrink: 0;
+}
+
+.writeup-page-shell .meta-dot { color: var(--text-faint); }
+
+.writeup-page-shell .writeup-meta .date {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+}
+
+.writeup-page-shell .difficulty-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  padding: 0.2em 0.6em;
+  border-radius: 3px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.writeup-page-shell .difficulty-badge.easy {
+  background: rgba(74,222,128,0.12);
+  color: var(--green);
+  border: 1px solid rgba(74,222,128,0.25);
+}
+
+.writeup-page-shell .difficulty-badge.medium {
+  background: rgba(251,191,36,0.12);
+  color: var(--amber);
+  border: 1px solid rgba(251,191,36,0.25);
+}
+
+.writeup-page-shell .difficulty-badge.hard {
+  background: rgba(248,113,113,0.12);
+  color: var(--red);
+  border: 1px solid rgba(248,113,113,0.25);
+}
+
+/* Markdown content */
+.writeup-page-shell .md-render {
+  animation: fadeUp 0.5s 0.1s ease both;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.writeup-page-shell .md-render h1,
+.writeup-page-shell .md-render h2,
+.writeup-page-shell .md-render h3,
+.writeup-page-shell .md-render h4 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.25;
+  margin: 2em 0 0.6em;
+}
+
+.writeup-page-shell .md-render h1 { font-size: 1.6rem; }
+
+.writeup-page-shell .md-render h2 {
+  font-size: 1.25rem;
+  padding-bottom: 0.4em;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+}
+
+.writeup-page-shell .md-render h2::before {
+  content: '##';
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--cyan);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.writeup-page-shell .md-render h3 {
+  font-size: 1.05rem;
+  color: var(--cyan);
+}
+
+.writeup-page-shell .md-render h4 { font-size: 0.95rem; color: var(--text-muted); font-weight: 600; }
+
+.writeup-page-shell .md-render p { margin: 0 0 1.1em; color: var(--text); }
+
+.writeup-page-shell .md-render a {
+  color: var(--cyan);
+  text-decoration: underline;
+  text-decoration-color: rgba(56,189,248,0.35);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.15s;
+}
+
+.writeup-page-shell .md-render a:hover { text-decoration-color: var(--cyan); }
+
+.writeup-page-shell .md-render :not(pre) > code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  padding: 0.18em 0.5em;
+  background: var(--bg-inline);
+  border: 1px solid rgba(56,189,248,0.18);
+  border-radius: 4px;
+  color: #93c5fd;
+  white-space: nowrap;
+}
+
+.writeup-page-shell .md-render pre {
+  margin: 1.5em 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+.writeup-page-shell .code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 1rem;
+  background: #161b22;
+  border-bottom: 1px solid var(--border);
+}
+
+.writeup-page-shell .code-lang {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.writeup-page-shell .code-copy {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text-faint);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.15em 0.5em;
+  border-radius: 3px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.writeup-page-shell .code-copy:hover { color: var(--cyan); background: var(--cyan-dim); }
+.writeup-page-shell .code-copy.copied { color: var(--green); }
+
+.writeup-page-shell .md-render pre > code,
+.writeup-page-shell .code-block-wrapper pre > code {
+  display: block;
+  padding: 1.1rem 1.25rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.84rem;
+  line-height: 1.65;
+  overflow-x: auto;
+  background: var(--bg-code) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  color: #abb2bf;
+  white-space: pre;
+}
+
+.writeup-page-shell .md-render ul,
+.writeup-page-shell .md-render ol {
+  margin: 0.5em 0 1.1em;
+  padding-left: 1.5em;
+}
+
+.writeup-page-shell .md-render ul { list-style: none; }
+
+.writeup-page-shell .md-render ul > li {
+  position: relative;
+  margin-bottom: 0.4em;
+  padding-left: 0.5em;
+}
+
+.writeup-page-shell .md-render ul > li::before {
+  content: '›';
+  position: absolute;
+  left: -1.1em;
+  color: var(--cyan);
+  font-weight: 700;
+  font-size: 1.1em;
+  line-height: 1.5;
+}
+
+.writeup-page-shell .md-render ol { list-style-type: decimal; }
+.writeup-page-shell .md-render ol > li { margin-bottom: 0.4em; padding-left: 0.25em; }
+.writeup-page-shell .md-render ol > li::marker {
+  color: var(--cyan);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+}
+
+.writeup-page-shell .md-render li > ul,
+.writeup-page-shell .md-render li > ol { margin: 0.35em 0 0.35em 0.5em; }
+
+.writeup-page-shell .md-render blockquote {
+  margin: 1.5em 0;
+  padding: 0.85em 1.25em;
+  border-left: 3px solid var(--cyan);
+  background: rgba(56,189,248,0.05);
+  border-radius: 0 6px 6px 0;
+}
+
+.writeup-page-shell .md-render blockquote p { color: #94a3b8; margin: 0; font-style: italic; }
+.writeup-page-shell .md-render blockquote p:not(:last-child) { margin-bottom: 0.5em; }
+
+.writeup-page-shell .md-render table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.writeup-page-shell .md-render thead { background: #161b22; }
+.writeup-page-shell .md-render th {
+  padding: 0.6em 0.9em;
+  text-align: left;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.writeup-page-shell .md-render td {
+  padding: 0.6em 0.9em;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+
+.writeup-page-shell .md-render tbody tr:last-child td { border-bottom: none; }
+.writeup-page-shell .md-render tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+.writeup-page-shell .md-render hr {
+  border: none;
+  height: 1px;
+  background: var(--border);
+  margin: 2.5em 0;
+}
+
+.writeup-page-shell .md-render img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  margin: 1em 0;
+}
+
+.writeup-page-shell .md-render strong { font-weight: 600; color: #fff; }
+.writeup-page-shell .md-render em { font-style: italic; color: #a8b4cc; }
+
+/* Code block wrapper (injected by JS) */
+.writeup-page-shell .code-block-wrapper {
+  margin: 1.5em 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+.writeup-page-shell .code-block-wrapper .code-header {
+  border-bottom: 1px solid var(--border);
+}
+
+/* Footer */
+.writeup-page-shell .writeup-footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  animation: fadeUp 0.5s 0.2s ease both;
+}
+
+.writeup-page-shell .back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  color: var(--cyan) !important;
+  text-decoration: none !important;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: gap 0.15s;
+}
+
+.writeup-page-shell .back-link:hover { gap: 0.6em; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbar (scoped to writeup area if needed) */
+.writeup-page-shell ::-webkit-scrollbar { width: 6px; height: 6px; }
+.writeup-page-shell ::-webkit-scrollbar-track { background: var(--bg); }
+.writeup-page-shell ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.writeup-page-shell ::-webkit-scrollbar-thumb:hover { background: #2e3448; }
+
+@media (max-width: 768px) {
+  .writeup-page-shell {
+    padding: 2rem 20px 4rem;
+  }
+}

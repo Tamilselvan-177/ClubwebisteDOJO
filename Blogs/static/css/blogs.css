@@ -146,6 +146,167 @@
   line-height: 1.75;
   max-width: 800px;
   margin: 0 auto;
+  text-align: left;
+}
+
+/* Let the writeup markdown body take full width so lists/quotes don't inherit center */
+.blog-detail-hero .blog-detail-body.writeup-markdown {
+  align-self: stretch;
+}
+
+/* Writeup list: short preview only */
+.writeup-preview {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* Markdown styling for writeup detail (and any .writeup-markdown) */
+.writeup-markdown,
+.blog-detail-body.writeup-markdown {
+  text-align: left;
+  width: 100%;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+.writeup-markdown h1,
+.writeup-markdown h2,
+.writeup-markdown h3,
+.writeup-markdown h4,
+.writeup-markdown h5,
+.writeup-markdown h6 {
+  color: var(--text-main);
+  font-weight: 700;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+.writeup-markdown h1:first-child,
+.writeup-markdown h2:first-child,
+.writeup-markdown h3:first-child { margin-top: 0; }
+
+.writeup-markdown h1 { font-size: 1.75rem; }
+.writeup-markdown h2 { font-size: 1.45rem; }
+.writeup-markdown h3 { font-size: 1.2rem; }
+.writeup-markdown h4 { font-size: 1.1rem; }
+.writeup-markdown h5 { font-size: 1.05rem; }
+.writeup-markdown h6 { font-size: 1rem; }
+
+.writeup-markdown strong { font-weight: 700; }
+.writeup-markdown em { font-style: italic; }
+
+.writeup-markdown p {
+  margin-bottom: 1em;
+  color: var(--text-main);
+  line-height: 1.75;
+}
+
+.writeup-markdown ul,
+.writeup-markdown ol {
+  margin: 0.75em 0 1em 0;
+  padding-left: 2em;
+  text-align: left;
+  list-style-position: outside;
+}
+
+.writeup-markdown ul { list-style-type: disc; }
+.writeup-markdown ol { list-style-type: decimal; }
+
+.writeup-markdown li {
+  margin-bottom: 0.35em;
+  line-height: 1.6;
+  text-align: left;
+  display: list-item;
+}
+
+.writeup-markdown code {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.2em 0.4em;
+  font-size: 0.9em;
+  font-family: ui-monospace, monospace;
+}
+
+.writeup-markdown pre {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  margin: 1em 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.writeup-markdown pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.writeup-markdown blockquote {
+  border-left: 4px solid var(--accent-cyan);
+  margin: 1em 0;
+  padding: 0.75em 1em 0.75em 1.25em;
+  background: rgba(0, 163, 213, 0.06);
+  border-radius: 0 8px 8px 0;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: left;
+}
+
+.writeup-markdown blockquote p {
+  margin-bottom: 0.5em;
+}
+
+.writeup-markdown blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.writeup-markdown a {
+  color: var(--accent-cyan);
+  text-decoration: none;
+}
+
+.writeup-markdown a:hover {
+  text-decoration: underline;
+}
+
+.writeup-markdown hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 1.5em 0;
+}
+
+.writeup-markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+  font-size: 0.95rem;
+}
+
+.writeup-markdown th,
+.writeup-markdown td {
+  border: 1px solid var(--border-color);
+  padding: 0.5em 0.75em;
+  text-align: left;
+}
+
+.writeup-markdown th {
+  background: var(--bg-card);
+  font-weight: 600;
+}
+
+.writeup-markdown img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
 }
 
 /* =========================
