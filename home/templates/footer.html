@@ -1,18 +1,48 @@
 {% load static %}
 <footer class="site-footer">
-        <div class="footer-content">
-            <div class="social-icons">
-                <i data-lucide="instagram" style="width:16px; margin-right:15px"></i>
-            </div>
-            <div class="footer-logo">
-                <img src="{% static 'images/CyanLogo.png' %}" style="color: var(--accent-cyan); opacity: 0.3; width: 40px; height: 40px;"/>
-            </div>
-            <div class="footer-links">
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-            </div>
-        </div>
-        <p class="footer-credits" style="text-align: center; font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem;">
-            Developed by <a href="https://www.linkedin.com/in/tamilselvanak/" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">Tamilselvan A K</a>, Abshar, Kavin raj
-        </p>
-    </footer>
+  <div class="footer-content">
+
+    <!-- LEFT: Logo / Name -->
+    <div class="logo">
+      <img src="{% static 'images/CyanLogo.png' %}" style="width: 35px; height: 35px; color: var(--accent-cyan)"/>
+      <span style="color: #00bff3 !important; text-shadow: 0 0 30px rgba(0, 191, 243, 0.5);">CYBER</span> SENTINELS
+    </div>
+
+    <!-- CENTER: Links -->
+    <div class="footer-links">
+      <a href="#">Rules</a>
+      <a href="#">FAQ</a>
+      <a href="#">Sponsors</a>
+      <a href="#">Contact</a>
+    </div>
+
+    <!-- RIGHT: Social -->
+    <div class="footer-links">
+      <a href="https://www.instagram.com/cybersentinels_rec/" target="_blank">
+        <i data-lucide="instagram"></i>
+      </a>
+      <a href="https://www.linkedin.com/company/cyber-sentinels/" target="_blank">
+        <i data-lucide="linkedin"></i>
+      </a>
+    </div>
+
+  </div>
+  <p style="margin-top: 2rem; font-size: 0.75rem; color: var(--text-muted);">
+    © 2026 CYBER SENTINELS. All rights reserved.
+  </p>
+  <p style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-muted);">
+    Developed by
+    <a href="https://www.linkedin.com/in/tamilselvanak/" target="_blank" class="name">
+      Tamilselvan A K,
+    </a>
+      <a href="https://www.linkedin.com/in/mohamed-abshar/" target="_blank" class="name">
+      Mohamed Abshar,
+    </a>
+      <a href="https://www.linkedin.com/in/kavinraj-thirumal-38a18b332/" target="_blank" class="name">
+      Kavin Raj
+    </a>
+  </p>
+</footer>
+<script>
+  lucide.createIcons();
+</script>
